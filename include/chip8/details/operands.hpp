@@ -26,10 +26,12 @@ struct operand_t {
     std::optional<T> op;
 
     public:
+    operand_t() {}
+
     operand_t(T val)
     : op(val) {}
 
-    auto operator=(T val) {
+    auto operator=(T val) -> void {
         op = val;
     }
 
@@ -42,11 +44,17 @@ struct operand_t {
     }
 };
 
-struct X_t : operand_t<uint8_t> {};
-struct Y_t : operand_t<uint8_t> {};
-struct N_t : operand_t<uint8_t> {};
-struct NN_t : operand_t<uint8_t> {};
-struct NNN_t : operand_t<uint16_t> {};
+using X_t = operand_t<uint8_t>;
+using Y_t = operand_t<uint8_t>;
+using N_t = operand_t<uint8_t>;
+using NN_t = operand_t<uint8_t>;
+using NNN_t = operand_t<uint16_t>;
+
+// struct X_t : operand_t<uint8_t> {};
+// struct Y_t : operand_t<uint8_t> {};
+// struct N_t : operand_t<uint8_t> {};
+// struct NN_t : operand_t<uint8_t> {};
+// struct NNN_t : operand_t<uint16_t> {};
 
 // Operands
 struct operands_t {

@@ -5,6 +5,31 @@
 
 #include <type_traits>
 
+template <typename opt, typename error_code>
+constexpr static auto validate_op_type = [](auto construct_val, auto assignment_val, auto invalid_error_val) -> void {
+    {
+        opt op;
+        ASSERT_TRUE(op() == error_code::val); // getting default value as error
+        ASSERT_TRUE(op(invalid_error_val) == invalid_error_val); // assigning the error code
+        ASSERT_FALSE(op.is_valid());
+        
+        op = assignment_val;
+        ASSERT_TRUE(op() == assignment_val);
+        ASSERT_TRUE(op.is_valid());
+    }
+
+    {
+        opt op(construct_val);
+        ASSERT_TRUE(op() == construct_val);
+        ASSERT_TRUE(op(invalid_error_val) == construct_val);    // as it is valid, error code is ignored
+        ASSERT_TRUE(op.is_valid());
+        
+        op = assignment_val;
+        ASSERT_TRUE(op() == assignment_val);
+        ASSERT_TRUE(op.is_valid());
+    }
+};
+
 class operands_test : public ::testing::Test {
   protected:
     void SetUp() override {
@@ -47,4 +72,15 @@ TEST_F(operands_test, error_code) {
     static_assert(std::is_same_v<decltype(u32_error_code::val), const std::uint32_t>);
 
     static_assert(std::is_same_v<decltype(dummy_error_code::val), const std::uint32_t>);
+}
+
+TEST_F(operands_test, chip8_operands) {
+    using u8_error_code = chip8::error_code_t<std::uint8_t>;
+    using u16_error_code = chip8::error_code_t<std::uint16_t>;
+
+    validate_op_type<chip8::X_t, u8_error_code>(76, 23, 1);
+    validate_op_type<chip8::Y_t, u8_error_code>(21, 45, 2);
+    validate_op_type<chip8::N_t, u8_error_code>(89, 67, 3);
+    validate_op_type<chip8::NN_t, u8_error_code>(109, 87, 4);
+    validate_op_type<chip8::NNN_t, u16_error_code>(0xDEAD, 290, 5);
 }
