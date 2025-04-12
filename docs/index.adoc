@@ -1,0 +1,5 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
+include::chip8_emu.adoc[]
