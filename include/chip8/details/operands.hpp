@@ -26,10 +26,12 @@ struct operand_t {
     std::optional<T> op;
 
     public:
+    operand_t() {}
+
     operand_t(T val)
     : op(val) {}
 
-    auto operator=(T val) {
+    auto operator=(T val) -> void {
         op = val;
     }
 
@@ -42,11 +44,11 @@ struct operand_t {
     }
 };
 
-struct X_t : operand_t<uint8_t> {};
-struct Y_t : operand_t<uint8_t> {};
-struct N_t : operand_t<uint8_t> {};
-struct NN_t : operand_t<uint8_t> {};
-struct NNN_t : operand_t<uint16_t> {};
+using X_t = operand_t<uint8_t>;
+using Y_t = operand_t<uint8_t>;
+using N_t = operand_t<uint8_t>;
+using NN_t = operand_t<uint8_t>;
+using NNN_t = operand_t<uint16_t>;
 
 // Operands
 struct operands_t {
@@ -62,8 +64,8 @@ public:
         _X = {((inst & 0x0F00) >> 8)};
     }
 
-    [[nodiscard]] auto X() const -> std::optional<X_t> {
-        return _X;
+    [[nodiscard]] auto X() const -> std::uint8_t {
+        return _X.value_or(X_t{})();
     }
 
     [[nodiscard]] auto X_is_valid() const -> bool {
@@ -74,8 +76,8 @@ public:
         _Y = {((inst & 0x00F0) >> 4)};
     }
 
-    [[nodiscard]] auto Y() const -> std::optional<Y_t> {
-        return _Y;
+    [[nodiscard]] auto Y() const -> std::uint8_t {
+        return _Y.value_or(Y_t{})();
     }
 
     [[nodiscard]] auto Y_is_valid() const -> bool {
@@ -86,8 +88,8 @@ public:
         _N = {inst & 0x000F};
     }
 
-    [[nodiscard]] auto N() const -> std::optional<N_t> {
-        return _N;
+    [[nodiscard]] auto N() const -> std::uint8_t {
+        return _N.value_or(N_t{})();
     }
 
     [[nodiscard]] auto N_is_valid() const -> bool {
@@ -98,8 +100,8 @@ public:
         _NN = {inst & 0x00FF};
     }
 
-    [[nodiscard]] auto NN() const -> std::optional<NN_t> {
-        return _NN;
+    [[nodiscard]] auto NN() const -> std::uint8_t {
+        return _NN.value_or(NN_t{})();
     }
 
     [[nodiscard]] auto NN_is_valid() const -> bool {
@@ -110,8 +112,8 @@ public:
         _NNN = {inst & 0x0FFF};
     }
 
-    [[nodiscard]] auto NNN() const -> std::optional<NNN_t> {
-        return _NNN;
+    [[nodiscard]] auto NNN() const -> std::uint16_t {
+        return _NNN.value_or(NNN_t{})();
     }
 
     [[nodiscard]] auto NNN_is_valid() const -> bool {
