@@ -1,0 +1,6 @@
+= Chip8 Emulator
+
+== Overview
+:hardbreaks-option:
+
+This is a chip8 emulator written in C++. The work is still in progress...
