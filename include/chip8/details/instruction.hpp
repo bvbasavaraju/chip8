@@ -15,7 +15,7 @@ private:
 public:
     static const auto decode(std::uin16_t inst) {
         auto ret_val = instruction_t{(inst & 0xF000)};
-        opcode_t<inst>::update_operands(inst & 0x0FFF, ret_val.operands);
+        opcode_t<opcode_val>::decode_operands(inst & 0x0FFF, ret_val.operands);
         return inst;
     }
 
