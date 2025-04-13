@@ -24,7 +24,7 @@ template <> struct opcode_t<0> {
         }
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.NNN_is_valid() 
                 || operands.NN_is_valid();
     }
@@ -52,11 +52,11 @@ template <> struct opcode_t<0> {
 // opcode 1 : 1NNN
 template <> struct opcode_t<1> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.NNN_is_valid();
     }
 
@@ -70,11 +70,11 @@ template <> struct opcode_t<1> {
 // opcode 2 : 2NNN
 template <> struct opcode_t<2> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.NNN_is_valid();
     }
 
@@ -88,12 +88,12 @@ template <> struct opcode_t<2> {
 // opcode 3 : 3XNN
 template <> struct opcode_t<3> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid() 
                 && (operands.NN_is_valid());
     }
@@ -109,12 +109,12 @@ template <> struct opcode_t<3> {
 // opcode 4 : 4XNN
 template <> struct opcode_t<4> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid() 
                 && (operands.NN_is_valid());
     }
@@ -130,7 +130,7 @@ template <> struct opcode_t<4> {
 // opcode 5 : 5XY0
 template <> struct opcode_t<5> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.Y(inst);
 
@@ -139,7 +139,7 @@ template <> struct opcode_t<5> {
         }
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid() 
                 && (operands.Y_is_valid());
     }
@@ -155,12 +155,12 @@ template <> struct opcode_t<5> {
 // opcode 6 : 6XNN
 template <> struct opcode_t<6> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.NN_is_valid();
     }
@@ -175,12 +175,12 @@ template <> struct opcode_t<6> {
 // opcode 7: 7XNN
 template <> struct opcode_t<7> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.NN_is_valid();
     }
@@ -195,13 +195,13 @@ template <> struct opcode_t<7> {
 // opcode 8: 8XY0, 8XY1, 8XY2, 8XY3, 8XY4, 8XY5, 8XY6, 8XY7, 8XYE
 template <> struct opcode_t<8> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.Y(inst);
         operands.N(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid()
                 && operands.N_is_valid();
@@ -217,7 +217,7 @@ template <> struct opcode_t<8> {
 // opcode 9: 9XY0
 template <> struct opcode_t<9> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.Y(inst);
 
@@ -226,7 +226,7 @@ template <> struct opcode_t<9> {
         }
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid();
     }
@@ -241,11 +241,11 @@ template <> struct opcode_t<9> {
 // opcode A: ANNN
 template <> struct opcode_t<0xA> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.NNN_is_valid();
     }
 
@@ -259,11 +259,11 @@ template <> struct opcode_t<0xA> {
 // opcode B: BNNN
 template <> struct opcode_t<0xB> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.NNN_is_valid();
     }
 
@@ -277,12 +277,12 @@ template <> struct opcode_t<0xB> {
 // opcode C: CXNN
 template <> struct opcode_t<0xC> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.NN_is_valid();
     }
@@ -297,13 +297,13 @@ template <> struct opcode_t<0xC> {
 // opcode D: DXYN
 template <> struct opcode_t<0xD> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.Y(inst);
         operands.N(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid()
                 && operands.N_is_valid();
@@ -319,12 +319,12 @@ template <> struct opcode_t<0xD> {
 // opcode E: EX9E, EXA1
 template <> struct opcode_t<0xE> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid();
     }
@@ -339,12 +339,12 @@ template <> struct opcode_t<0xE> {
 // opcode F: FX07, FX0A, FX15, FX18, FX1E, FX29, FX33, FX55, FX65
 template <> struct opcode_t<0xF> {
     // Static functions
-    static const auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
+    static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
         operands.NN(inst);
     };
 
-    [[nodiscard]] static const auto validate_operands(operands_t const& operands) -> bool {
+    [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.NN_is_valid();
     }
