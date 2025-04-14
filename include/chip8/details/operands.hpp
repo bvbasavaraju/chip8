@@ -2,6 +2,8 @@
 
 #include <cstdint>
 #include <optional>
+#include <vector>
+#include <algorithm>
 
 namespace chip8 {
 
@@ -25,6 +27,19 @@ struct operand_t {
     private:
     std::optional<T> op;
 
+    auto is_acceptable(std::optional<std::vector<T>> acceptable_values) const -> bool {
+        if (!acceptable_values.has_value()) {
+            return true;
+        }
+        
+
+        T val = op.value();
+        return std::any_of(acceptable_values.value().begin(), acceptable_values.value().end(), 
+            [val](T acceptable_val) -> bool {
+                return (val == acceptable_val);
+            });
+    };
+
     public:
     operand_t() {}
 
@@ -39,8 +54,8 @@ struct operand_t {
         return op.value_or(error_code);
     }
 
-    [[nodiscard]] auto is_valid() const -> bool {
-        return op.has_value();
+    [[nodiscard]] auto is_valid(std::optional<std::vector<T>> acceptable_values = {}) const -> bool {
+        return (op.has_value() &&  is_acceptable(acceptable_values));
     }
 };
 
@@ -104,8 +119,8 @@ public:
         return _NN.value_or(NN_t{})();
     }
 
-    [[nodiscard]] auto NN_is_valid() const -> bool {
-        return _NN.has_value() && _NN.value().is_valid();
+    [[nodiscard]] auto NN_is_valid(std::optional<std::vector<std::uint8_t>> acceptable_values = {}) const -> bool {
+        return _NN.has_value() && _NN.value().is_valid(acceptable_values);
     }
 
     auto NNN(std::uint16_t inst) -> void {

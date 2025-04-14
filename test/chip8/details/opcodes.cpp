@@ -8,28 +8,50 @@
 
 struct operations_t {
     struct call_t {
-        static uint32_t count;
-        // auto operator()() -> void {
-        //     count++;
-        // };
-        static auto perform() -> void {
-            count++;
-        }
+        static bool flag;
+        static auto perform() -> void { flag = true; }
     };
+
+    struct display_t {
+        static bool clear_screen_flag;
+        static auto clear_screen() -> void { clear_screen_flag = true; }
+    };
+    
+    struct flow_t {
+        static bool function_return_flag;
+        static auto function_return() -> void { function_return_flag = true; }
+    };
+
+    struct invalid_t {
+        static bool flag;
+        static auto handle() -> void { flag = true; }
+    };  
 
     // struct bcd_t;
     // struct assign_t;
     // struct bitwise_t;
     // struct conditional_t;
-    // struct display_t;
-    // struct flow_t;
     // struct math_t;
     // struct mem_t;
     // struct rand_t;
     // struct timer_t;
 };
 
-uint32_t operations_t::call_t::count = 0;
+bool operations_t::call_t::flag = false;
+bool operations_t::display_t::clear_screen_flag = false;
+bool operations_t::flow_t::function_return_flag = false;
+bool operations_t::invalid_t::flag = false;
+
+template <typename Opcode_t>
+static auto decode_execute_validate(std::uint16_t inst, auto &flag) -> void {
+    chip8::operands_t operands;
+    Opcode_t::decode_operands(inst, operands);
+
+    ASSERT_FALSE(flag);
+    Opcode_t::template execute<operations_t>(operands);
+    ASSERT_TRUE(flag);
+    flag = false;
+}
 
 class opcodes_test : public ::testing::Test {
   protected:
@@ -61,19 +83,20 @@ class opcodes_test : public ::testing::Test {
 };
 
 TEST_F(opcodes_test, opcode_0) {
-    static_assert(true);
+    // 0x0NNN
+    decode_execute_validate<op0>(0xFAB, operations_t::call_t::flag);
+    decode_execute_validate<op0>(0x1E0, operations_t::call_t::flag);
+    decode_execute_validate<op0>(0x234, operations_t::call_t::flag);
+    decode_execute_validate<op0>(0x543, operations_t::call_t::flag);
+    
+    // 00E0
+    decode_execute_validate<op0>(0xE0, operations_t::display_t::clear_screen_flag);
+    
+    // 00EE
+    decode_execute_validate<op0>(0xEE, operations_t::flow_t::function_return_flag);
 
-    chip8::operands_t operands;
-    op0::decode_operands(0xFE0, operands);
-    ASSERT_TRUE(op0::validate_operands(operands));
-
-    ASSERT_FALSE(operands.X_is_valid());
-    ASSERT_FALSE(operands.Y_is_valid());
-    ASSERT_FALSE(operands.N_is_valid());
-    ASSERT_FALSE(operands.NN_is_valid());
-    ASSERT_TRUE(operands.NNN_is_valid());
-
-    ASSERT_TRUE(operations_t::call_t::count == 0);
-    op0::execute<operations_t>(operands);
-    ASSERT_TRUE(operations_t::call_t::count == 1);
+    // 0xNN - invalid
+    decode_execute_validate<op0>(0x23, operations_t::invalid_t::flag);
+    decode_execute_validate<op0>(0x99, operations_t::invalid_t::flag);
+    decode_execute_validate<op0>(0xAA, operations_t::invalid_t::flag);
 }

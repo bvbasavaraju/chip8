@@ -25,15 +25,18 @@ template <> struct opcode_t<0> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.NNN_is_valid() 
-                || operands.NN_is_valid();
+        return ( operands.NNN_is_valid() || operands.NN_is_valid({{0xE0, 0xEE}}))
+                && !operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid();
     }
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
         if(!validate_operands(operands)) {
-            //TODO: Crash or log error
+            Operations_t::invalid_t::handle();
+            return;
         }
 
         if (operands.NNN_is_valid()) {
@@ -41,9 +44,9 @@ template <> struct opcode_t<0> {
         } else {
             auto val = operands.NN();
             if(val == 0xE0) {
-                //TODO: clear Screen
+                Operations_t::display_t::clear_screen();
             } else if (val == 0xEE) {
-                //TODO: return from subroutine
+                Operations_t::flow_t::function_return();
             }
         }
     }
@@ -57,7 +60,11 @@ template <> struct opcode_t<1> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.NNN_is_valid();
+        return !operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -75,7 +82,11 @@ template <> struct opcode_t<2> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.NNN_is_valid();
+        return !operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -94,8 +105,11 @@ template <> struct opcode_t<3> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.X_is_valid() 
-                && (operands.NN_is_valid());
+        return operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -115,8 +129,11 @@ template <> struct opcode_t<4> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.X_is_valid() 
-                && (operands.NN_is_valid());
+        return operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -135,13 +152,16 @@ template <> struct opcode_t<5> {
         operands.Y(inst);
 
         if(inst & 0x000F) {
-            // TODO: N should be 0 here! if not report error or crash
+            // TODO: Fourth nibble should be 0 here! if not report error or crash
         }
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.X_is_valid() 
-                && (operands.Y_is_valid());
+        return operands.X_is_valid()
+                && operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -162,7 +182,10 @@ template <> struct opcode_t<6> {
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.NN_is_valid();
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -182,7 +205,10 @@ template <> struct opcode_t<7> {
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.NN_is_valid();
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -204,7 +230,9 @@ template <> struct opcode_t<8> {
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid()
-                && operands.N_is_valid();
+                && operands.N_is_valid()   // TODO: only specific values of N
+                && !operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -222,13 +250,16 @@ template <> struct opcode_t<9> {
         operands.Y(inst);
 
         if(inst & 0x000F) {
-            // TODO: N should be 0 here! if not report error or crash
+            // TODO: Fourth nibble should be 0 here! if not report error or crash
         }
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.Y_is_valid();
+                && operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -246,7 +277,11 @@ template <> struct opcode_t<0xA> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.NNN_is_valid();
+        return !operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -264,7 +299,11 @@ template <> struct opcode_t<0xB> {
     };
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
-        return operands.NNN_is_valid();
+        return !operands.X_is_valid()
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -284,7 +323,10 @@ template <> struct opcode_t<0xC> {
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.NN_is_valid();
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -306,7 +348,9 @@ template <> struct opcode_t<0xD> {
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
                 && operands.Y_is_valid()
-                && operands.N_is_valid();
+                && operands.N_is_valid()
+                && !operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -326,7 +370,10 @@ template <> struct opcode_t<0xE> {
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.Y_is_valid();
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
@@ -346,7 +393,10 @@ template <> struct opcode_t<0xF> {
 
     [[nodiscard]] static auto validate_operands(operands_t const& operands) -> bool {
         return operands.X_is_valid()
-                && operands.NN_is_valid();
+                && !operands.Y_is_valid()
+                && !operands.N_is_valid()
+                && operands.NN_is_valid()   // TODO: Specific values of NN
+                && !operands.NNN_is_valid();
     }
 
     template <typename Operations_t>
