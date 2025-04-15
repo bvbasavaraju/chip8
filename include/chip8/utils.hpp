@@ -26,6 +26,8 @@ template <typename T>
 concept HasFlowOperation = requires {
     typename T::flow_t;
     { T::flow_t::function_return() };
+    { T::flow_t::jump(std::uint16_t{}) };
+    { T::flow_t::function_call_at(std::uint16_t{}) };
 };
 
 // Invalid operation

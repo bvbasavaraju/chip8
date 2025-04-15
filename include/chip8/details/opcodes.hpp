@@ -10,11 +10,29 @@
 
 namespace chip8 {
 
-template <std::uint16_t op>
+namespace detail {
+
+template <typename T>
+struct opcode_base {
+    template <typename Operations_t>
+    requires SupportsChip8Ops<Operations_t>
+    static auto validate_operands_and_execute(operands_t const& operands) -> void {
+        if(!T::validate_operands(operands)) {
+            Operations_t::invalid_t::handle();
+            return;
+        }
+
+        T::template execute<Operations_t>(operands);
+    }
+};
+
+}   // namespace detail
+
+template <std::uint8_t op>
 struct opcode_t;
 
 // opcode 0 : 0NNN, 00E0, 00EE
-template <> struct opcode_t<0> {
+template <> struct opcode_t<0> : detail::opcode_base<opcode_t<0>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         if (inst & 0x0F00) {
@@ -34,11 +52,6 @@ template <> struct opcode_t<0> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        if(!validate_operands(operands)) {
-            Operations_t::invalid_t::handle();
-            return;
-        }
-
         if (operands.NNN_is_valid()) {
             Operations_t::call_t::perform();
         } else {
@@ -53,7 +66,7 @@ template <> struct opcode_t<0> {
 };
 
 // opcode 1 : 1NNN
-template <> struct opcode_t<1> {
+template <> struct opcode_t<1> : detail::opcode_base<opcode_t<1>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
@@ -70,12 +83,12 @@ template <> struct opcode_t<1> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        // TODO: Jumps to address
+        Operations_t::flow_t::jump(operands.NNN());
     }
 };
 
 // opcode 2 : 2NNN
-template <> struct opcode_t<2> {
+template <> struct opcode_t<2> : detail::opcode_base<opcode_t<2>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
@@ -92,12 +105,12 @@ template <> struct opcode_t<2> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        // TODO: Calls subroutine
+        Operations_t::flow_t::function_call_at(operands.NNN());
     }
 };
 
 // opcode 3 : 3XNN
-template <> struct opcode_t<3> {
+template <> struct opcode_t<3> : detail::opcode_base<opcode_t<3>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -121,7 +134,7 @@ template <> struct opcode_t<3> {
 };
 
 // opcode 4 : 4XNN
-template <> struct opcode_t<4> {
+template <> struct opcode_t<4> : detail::opcode_base<opcode_t<4>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -145,7 +158,7 @@ template <> struct opcode_t<4> {
 };
 
 // opcode 5 : 5XY0
-template <> struct opcode_t<5> {
+template <> struct opcode_t<5> : detail::opcode_base<opcode_t<5>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -173,7 +186,7 @@ template <> struct opcode_t<5> {
 };
 
 // opcode 6 : 6XNN
-template <> struct opcode_t<6> {
+template <> struct opcode_t<6> : detail::opcode_base<opcode_t<6>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -196,7 +209,7 @@ template <> struct opcode_t<6> {
 };
 
 // opcode 7: 7XNN
-template <> struct opcode_t<7> {
+template <> struct opcode_t<7> : detail::opcode_base<opcode_t<7>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -219,7 +232,7 @@ template <> struct opcode_t<7> {
 };
 
 // opcode 8: 8XY0, 8XY1, 8XY2, 8XY3, 8XY4, 8XY5, 8XY6, 8XY7, 8XYE
-template <> struct opcode_t<8> {
+template <> struct opcode_t<8> : detail::opcode_base<opcode_t<8>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -243,7 +256,7 @@ template <> struct opcode_t<8> {
 };
 
 // opcode 9: 9XY0
-template <> struct opcode_t<9> {
+template <> struct opcode_t<9> : detail::opcode_base<opcode_t<9>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -270,7 +283,7 @@ template <> struct opcode_t<9> {
 };
 
 // opcode A: ANNN
-template <> struct opcode_t<0xA> {
+template <> struct opcode_t<0xA> : detail::opcode_base<opcode_t<0xA>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
@@ -292,7 +305,7 @@ template <> struct opcode_t<0xA> {
 };
 
 // opcode B: BNNN
-template <> struct opcode_t<0xB> {
+template <> struct opcode_t<0xB> : detail::opcode_base<opcode_t<0xB>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.NNN(inst);
@@ -314,7 +327,7 @@ template <> struct opcode_t<0xB> {
 };
 
 // opcode C: CXNN
-template <> struct opcode_t<0xC> {
+template <> struct opcode_t<0xC> : detail::opcode_base<opcode_t<0xC>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -337,7 +350,7 @@ template <> struct opcode_t<0xC> {
 };
 
 // opcode D: DXYN
-template <> struct opcode_t<0xD> {
+template <> struct opcode_t<0xD> : detail::opcode_base<opcode_t<0xD>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -361,7 +374,7 @@ template <> struct opcode_t<0xD> {
 };
 
 // opcode E: EX9E, EXA1
-template <> struct opcode_t<0xE> {
+template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);
@@ -384,7 +397,7 @@ template <> struct opcode_t<0xE> {
 };
 
 // opcode F: FX07, FX0A, FX15, FX18, FX1E, FX29, FX33, FX55, FX65
-template <> struct opcode_t<0xF> {
+template <> struct opcode_t<0xF> : detail::opcode_base<opcode_t<0xF>> {
     // Static functions
     static auto decode_operands(std::uint16_t inst, operands_t& operands) -> void {
         operands.X(inst);

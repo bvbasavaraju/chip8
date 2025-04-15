@@ -68,6 +68,9 @@ using NNN_t = operand_t<uint16_t>;
 // Operands
 struct operands_t {
 private:
+    using u8_acceptable_t = std::optional<std::vector<std::uint8_t>>;
+    using u16_acceptable_t = std::optional<std::vector<std::uint16_t>>;
+
     std::optional<X_t> _X;
     std::optional<Y_t> _Y;
     std::optional<N_t> _N;
@@ -83,8 +86,8 @@ public:
         return _X.value_or(X_t{})();
     }
 
-    [[nodiscard]] auto X_is_valid() const -> bool {
-        return _X.has_value() && _X.value().is_valid();
+    [[nodiscard]] auto X_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
+        return _X.has_value() && _X.value().is_valid(acceptable_values);
     }
 
     auto Y(std::uint16_t inst) -> void {
@@ -95,8 +98,8 @@ public:
         return _Y.value_or(Y_t{})();
     }
 
-    [[nodiscard]] auto Y_is_valid() const -> bool {
-        return _Y.has_value() && _Y.value().is_valid();
+    [[nodiscard]] auto Y_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
+        return _Y.has_value() && _Y.value().is_valid(acceptable_values);
     }
 
     auto N(std::uint16_t inst) -> void {
@@ -107,8 +110,8 @@ public:
         return _N.value_or(N_t{})();
     }
 
-    [[nodiscard]] auto N_is_valid() const -> bool {
-        return _N.has_value() && _N.value().is_valid();
+    [[nodiscard]] auto N_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
+        return _N.has_value() && _N.value().is_valid(acceptable_values);
     }
 
     auto NN(std::uint16_t inst) -> void {
@@ -119,7 +122,7 @@ public:
         return _NN.value_or(NN_t{})();
     }
 
-    [[nodiscard]] auto NN_is_valid(std::optional<std::vector<std::uint8_t>> acceptable_values = {}) const -> bool {
+    [[nodiscard]] auto NN_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
         return _NN.has_value() && _NN.value().is_valid(acceptable_values);
     }
 
@@ -131,8 +134,8 @@ public:
         return _NNN.value_or(NNN_t{})();
     }
 
-    [[nodiscard]] auto NNN_is_valid() const -> bool {
-        return _NNN.has_value() && _NNN.value().is_valid();
+    [[nodiscard]] auto NNN_is_valid(u16_acceptable_t acceptable_values = {}) const -> bool {
+        return _NNN.has_value() && _NNN.value().is_valid(acceptable_values);
     }
 };
 }   // chip8
