@@ -9,11 +9,13 @@
 struct ops_t {
     struct call_t {
         static bool flag;
+
         static auto perform() -> void { flag = true; }
     };
 
     struct display_t {
         static bool clear_screen_flag;
+
         static auto clear_screen() -> void { clear_screen_flag = true; }
     };
     
@@ -21,6 +23,7 @@ struct ops_t {
         static bool jump_flag;
         static bool function_return_flag;
         static bool function_call_at_flag;
+
         static auto jump(std::uint16_t address) -> void { jump_flag = true; }
         static auto function_return() -> void { function_return_flag = true; }
         static auto function_call_at(std::uint16_t address) -> void { function_call_at_flag = true; }
@@ -28,13 +31,25 @@ struct ops_t {
 
     struct invalid_t {
         static bool flag;
+
         static auto handle() -> void { flag = true; }
-    };  
+    };
+
+    struct conditional_t {
+        static bool skip_if_eq_to_val_flag;
+        static bool skip_if_not_eq_to_val_flag;
+        static bool skip_if_eq_to_reg_flag;
+        static bool skip_if_not_eq_to_reg_flag;
+
+        static auto skip_if_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_eq_to_val_flag = true; }
+        static auto skip_if_not_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_not_eq_to_val_flag = true; }
+        static auto skip_if_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_eq_to_reg_flag = true; }
+        static auto skip_if_not_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_not_eq_to_reg_flag = true; }
+    };
 
     // struct bcd_t;
     // struct assign_t;
     // struct bitwise_t;
-    // struct conditional_t;
     // struct math_t;
     // struct mem_t;
     // struct rand_t;
@@ -48,6 +63,10 @@ bool ops_t::flow_t::jump_flag = false;
 bool ops_t::flow_t::function_return_flag = false;
 bool ops_t::flow_t::function_call_at_flag = false;
 bool ops_t::invalid_t::flag = false;
+bool ops_t::conditional_t::skip_if_eq_to_val_flag = false;
+bool ops_t::conditional_t::skip_if_not_eq_to_val_flag = false;
+bool ops_t::conditional_t::skip_if_eq_to_reg_flag = false;
+bool ops_t::conditional_t::skip_if_not_eq_to_reg_flag = false;
 
 // decode and execute and validate
 static auto decode_execute_and_validate(std::uint16_t inst, auto &flag) -> void {
@@ -178,4 +197,32 @@ TEST_F(opcodes_test, opcode_2) {
     decode_execute_and_validate(0x2ABC, ops_t::flow_t::function_call_at_flag);
     decode_execute_and_validate(0x2FEE, ops_t::flow_t::function_call_at_flag);
     decode_execute_and_validate(0x2023, ops_t::flow_t::function_call_at_flag);
+}
+
+TEST_F(opcodes_test, opcode_3) {
+    decode_execute_and_validate(0x3123, ops_t::conditional_t::skip_if_eq_to_val_flag);
+    decode_execute_and_validate(0x3ABC, ops_t::conditional_t::skip_if_eq_to_val_flag);
+    decode_execute_and_validate(0x3FEE, ops_t::conditional_t::skip_if_eq_to_val_flag);
+    decode_execute_and_validate(0x3023, ops_t::conditional_t::skip_if_eq_to_val_flag);
+}
+
+TEST_F(opcodes_test, opcode_4) {
+    decode_execute_and_validate(0x4123, ops_t::conditional_t::skip_if_not_eq_to_val_flag);
+    decode_execute_and_validate(0x4ABC, ops_t::conditional_t::skip_if_not_eq_to_val_flag);
+    decode_execute_and_validate(0x4FEE, ops_t::conditional_t::skip_if_not_eq_to_val_flag);
+    decode_execute_and_validate(0x4023, ops_t::conditional_t::skip_if_not_eq_to_val_flag);
+}
+
+TEST_F(opcodes_test, opcode_5) {
+    decode_execute_and_validate(0x5123, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5ABC, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5FEE, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5023, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+}
+
+TEST_F(opcodes_test, opcode_9) {
+    decode_execute_and_validate(0x9123, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9ABC, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9FEE, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9023, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
 }

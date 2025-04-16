@@ -30,6 +30,16 @@ concept HasFlowOperation = requires {
     { T::flow_t::function_call_at(std::uint16_t{}) };
 };
 
+// Conditional operation
+template <typename T>
+concept HasConditionalOperation = requires {
+    typename T::conditional_t;
+    { T::conditional_t::skip_if_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_not_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_not_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
+};
+
 // Invalid operation
 template <typename T>
 concept InvalidOperation = requires {
@@ -42,6 +52,7 @@ concept SupportsChip8Ops = requires {
     requires HasCallOperation<T>;
     requires HasDisplayOperation<T>;
     requires HasFlowOperation<T>;
+    requires HasConditionalOperation<T>;
     requires InvalidOperation<T>;
 
 
@@ -49,8 +60,6 @@ concept SupportsChip8Ops = requires {
     // typename T::assign_t;
     // typename T::bcd_t;
     // typename T::bitwise_t;
-    // typename T::conditional_t;
-    // typename T::flow_t;
     // typename T::math_t;
     // typename T::mem_t;
     // typename T::rand_t;

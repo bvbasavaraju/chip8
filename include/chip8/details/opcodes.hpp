@@ -128,8 +128,7 @@ template <> struct opcode_t<3> : detail::opcode_base<opcode_t<3>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
-        //Skips the next instruction if VX equals NN (usually the next instruction is a jump to skip a code block)
+        Operations_t::conditional_t::skip_if_equal_to_val(operands.X(), operands.NN());
     }
 };
 
@@ -152,8 +151,7 @@ template <> struct opcode_t<4> : detail::opcode_base<opcode_t<4>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
-        //Skips the next instruction if VX does not equal NN (usually the next instruction is a jump to skip a code block)
+        Operations_t::conditional_t::skip_if_not_equal_to_val(operands.X(), operands.NN());
     }
 };
 
@@ -180,8 +178,7 @@ template <> struct opcode_t<5> : detail::opcode_base<opcode_t<5>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
-        //Skips the next instruction if VX equals VY (usually the next instruction is a jump to skip a code block)
+        Operations_t::conditional_t::skip_if_equal_to_reg(operands.X(), operands.Y());
     }
 };
 
@@ -278,7 +275,7 @@ template <> struct opcode_t<9> : detail::opcode_base<opcode_t<9>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        Operations_t::conditional_t::skip_if_not_equal_to_reg(operands.X(), operands.Y());
     }
 };
 
