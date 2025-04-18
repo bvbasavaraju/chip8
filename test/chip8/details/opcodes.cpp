@@ -41,10 +41,30 @@ struct ops_t {
         static bool skip_if_eq_to_reg_flag;
         static bool skip_if_not_eq_to_reg_flag;
 
-        static auto skip_if_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_eq_to_val_flag = true; }
-        static auto skip_if_not_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_not_eq_to_val_flag = true; }
-        static auto skip_if_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_eq_to_reg_flag = true; }
-        static auto skip_if_not_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_not_eq_to_reg_flag = true; }
+        static auto skip_if_reg_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_eq_to_val_flag = true; }
+        static auto skip_if_reg_not_equal_to_val(std::uint8_t x, std::uint8_t val) { skip_if_not_eq_to_val_flag = true; }
+        static auto skip_if_reg_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_eq_to_reg_flag = true; }
+        static auto skip_if_reg_not_equal_to_reg(std::uint8_t x, std::uint8_t y) { skip_if_not_eq_to_reg_flag = true; }
+    };
+
+    struct assign_t {
+        static bool set_reg_to_val_flag;
+        static bool set_reg_to_reg_flag;
+
+        static auto set_reg_to_val(std::uint8_t x, std::uint8_t val) { set_reg_to_val_flag = true; }
+        static auto set_reg_to_reg(std::uint8_t x, std::uint8_t y) { set_reg_to_reg_flag = true; }
+    };
+
+    struct math_t {
+        static bool add_reg_with_val_with_carry_flag;
+        static bool add_reg_with_val_without_carry_flag;
+        static bool add_reg_with_reg_with_carry_flag;
+        static bool add_reg_with_reg_without_carry_flag;
+
+        static auto add_reg_with_val_with_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_val_with_carry_flag = true; }
+        static auto add_reg_with_val_without_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_val_without_carry_flag = true; }
+        static auto add_reg_with_reg_with_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_reg_with_carry_flag = true; }
+        static auto add_reg_with_reg_without_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_reg_without_carry_flag = true; }
     };
 
     // struct bcd_t;
@@ -67,16 +87,28 @@ bool ops_t::conditional_t::skip_if_eq_to_val_flag = false;
 bool ops_t::conditional_t::skip_if_not_eq_to_val_flag = false;
 bool ops_t::conditional_t::skip_if_eq_to_reg_flag = false;
 bool ops_t::conditional_t::skip_if_not_eq_to_reg_flag = false;
+bool ops_t::assign_t::set_reg_to_val_flag = false;
+bool ops_t::assign_t::set_reg_to_reg_flag = false;
+bool ops_t::math_t::add_reg_with_val_with_carry_flag = false;
+bool ops_t::math_t::add_reg_with_val_without_carry_flag = false;
+bool ops_t::math_t::add_reg_with_reg_with_carry_flag = false;
+bool ops_t::math_t::add_reg_with_reg_without_carry_flag = false;
 
 // decode and execute and validate
-static auto decode_execute_and_validate(std::uint16_t inst, auto &flag) -> void {
+static auto decode_execute_and_validate(std::uint16_t inst, auto &flag, bool expected_decode_operands_status = true) -> void {
     std::uint8_t opcode = (inst & 0xF000) >> 12;
 
     ASSERT_FALSE(flag);
 
     chip8::operands_t operands;
     auto operand_work  = [&]<std::uint8_t op_val>() -> void {
-        chip8::opcode_t<op_val>::decode_operands(inst, operands);
+        auto decode_status = chip8::opcode_t<op_val>::decode_operands(inst, operands);
+        if(expected_decode_operands_status) {
+            ASSERT_TRUE(decode_status);
+        } else {
+            ASSERT_FALSE(decode_status);
+        }
+        
         chip8::opcode_t<op_val>::template validate_operands_and_execute<ops_t>(operands);
     };
 
@@ -151,7 +183,13 @@ static auto decode_execute_and_validate(std::uint16_t inst, auto &flag) -> void 
         break;
     }
 
-    ASSERT_TRUE(flag);
+    if (expected_decode_operands_status) {
+        ASSERT_TRUE(flag);
+    } else {
+        ASSERT_TRUE(ops_t::invalid_t::flag);
+        ops_t::invalid_t::flag = false;
+    }
+    
     flag = false;
 }
 
@@ -214,15 +252,67 @@ TEST_F(opcodes_test, opcode_4) {
 }
 
 TEST_F(opcodes_test, opcode_5) {
-    decode_execute_and_validate(0x5123, ops_t::conditional_t::skip_if_eq_to_reg_flag);
-    decode_execute_and_validate(0x5ABC, ops_t::conditional_t::skip_if_eq_to_reg_flag);
-    decode_execute_and_validate(0x5FEE, ops_t::conditional_t::skip_if_eq_to_reg_flag);
-    decode_execute_and_validate(0x5023, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5123, ops_t::conditional_t::skip_if_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x5ABC, ops_t::conditional_t::skip_if_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x5FEE, ops_t::conditional_t::skip_if_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x5023, ops_t::conditional_t::skip_if_eq_to_reg_flag, false);
+
+    decode_execute_and_validate(0x5120, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5AB0, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5FE0, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+    decode_execute_and_validate(0x5020, ops_t::conditional_t::skip_if_eq_to_reg_flag);
+}
+
+TEST_F(opcodes_test, opcode_6) {
+    decode_execute_and_validate(0x6123, ops_t::assign_t::set_reg_to_val_flag);
+    decode_execute_and_validate(0x6ABC, ops_t::assign_t::set_reg_to_val_flag);
+    decode_execute_and_validate(0x6FEE, ops_t::assign_t::set_reg_to_val_flag);
+    decode_execute_and_validate(0x6023, ops_t::assign_t::set_reg_to_val_flag);
+}
+
+TEST_F(opcodes_test, opcode_7) {
+    decode_execute_and_validate(0x7123, ops_t::math_t::add_reg_with_val_without_carry_flag);
+    decode_execute_and_validate(0x7ABC, ops_t::math_t::add_reg_with_val_without_carry_flag);
+    decode_execute_and_validate(0x7FEE, ops_t::math_t::add_reg_with_val_without_carry_flag);
+    decode_execute_and_validate(0x7023, ops_t::math_t::add_reg_with_val_without_carry_flag);
+}
+
+TEST_F(opcodes_test, opcode_8) {
+    // TODO
 }
 
 TEST_F(opcodes_test, opcode_9) {
-    decode_execute_and_validate(0x9123, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
-    decode_execute_and_validate(0x9ABC, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
-    decode_execute_and_validate(0x9FEE, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
-    decode_execute_and_validate(0x9023, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9123, ops_t::conditional_t::skip_if_not_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x9ABC, ops_t::conditional_t::skip_if_not_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x9FEE, ops_t::conditional_t::skip_if_not_eq_to_reg_flag, false);
+    decode_execute_and_validate(0x9023, ops_t::conditional_t::skip_if_not_eq_to_reg_flag, false);
+
+    decode_execute_and_validate(0x9120, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9AB0, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9FE0, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+    decode_execute_and_validate(0x9020, ops_t::conditional_t::skip_if_not_eq_to_reg_flag);
+}
+
+TEST_F(opcodes_test, opcode_A) {
+    // TODO
+}
+
+TEST_F(opcodes_test, opcode_B) {
+    // TODO
+}
+
+TEST_F(opcodes_test, opcode_C) {
+    // TODO
+}
+
+TEST_F(opcodes_test, opcode_D) {
+    // TODO
+}
+
+TEST_F(opcodes_test, opcode_E) {
+    // TODO
+}
+
+TEST_F(opcodes_test, opcode_F) {
+    // TODO
 }

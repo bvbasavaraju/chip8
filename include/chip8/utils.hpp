@@ -34,10 +34,28 @@ concept HasFlowOperation = requires {
 template <typename T>
 concept HasConditionalOperation = requires {
     typename T::conditional_t;
-    { T::conditional_t::skip_if_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
-    { T::conditional_t::skip_if_not_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
-    { T::conditional_t::skip_if_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
-    { T::conditional_t::skip_if_not_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_reg_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_reg_not_equal_to_val(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_reg_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
+    { T::conditional_t::skip_if_reg_not_equal_to_reg(std::uint8_t{}, std::uint8_t{}) };
+};
+
+// Assignment operation
+template <typename T>
+concept HasAssignmentOperation = requires {
+    typename T::assign_t;
+    { T::assign_t::set_reg_to_val(std::uint8_t{}, std::uint8_t{}) };
+    { T::assign_t::set_reg_to_reg(std::uint8_t{}, std::uint8_t{}) };
+};
+
+// Math operation
+template <typename T>
+concept HasMathOperation = requires {
+    typename T::math_t;
+    { T::math_t::add_reg_with_val_with_carry(std::uint8_t{}, std::uint8_t{}) };
+    { T::math_t::add_reg_with_val_without_carry(std::uint8_t{}, std::uint8_t{}) };
+    { T::math_t::add_reg_with_reg_with_carry(std::uint8_t{}, std::uint8_t{}) };
+    { T::math_t::add_reg_with_reg_without_carry(std::uint8_t{}, std::uint8_t{}) };
 };
 
 // Invalid operation
@@ -53,6 +71,8 @@ concept SupportsChip8Ops = requires {
     requires HasDisplayOperation<T>;
     requires HasFlowOperation<T>;
     requires HasConditionalOperation<T>;
+    requires HasAssignmentOperation<T>;
+    requires HasMathOperation<T>;
     requires InvalidOperation<T>;
 
 
