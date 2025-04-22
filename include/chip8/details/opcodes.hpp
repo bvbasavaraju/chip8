@@ -485,7 +485,39 @@ template <> struct opcode_t<0xF> : detail::opcode_base<opcode_t<0xF>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        switch(operands.NN()) {
+            case 7:
+                Operations_t::timer_t::get_delay(operands.X());
+                break;
+            case 0xA:
+                Operations_t::keyop_t::read_key_stroke(operands.X());
+                break;
+            case 0x15:
+                Operations_t::timer_t::set_delay(operands.X());
+                break;
+            case 0x18:
+                Operations_t::timer_t::set_sound_timer(operands.X());
+                break;
+            case 0x1E:
+                Operations_t::mem_t::add_reg(operands.X());
+                break;
+            case 0x29:
+                Operations_t::mem_t::set_to_sprite_char(operands.X());
+                break;
+            case 0x33:
+                Operations_t::bcd_t::set(operands.X());
+                break;
+            case 0x55:
+                Operations_t::mem_t::reg_dump(operands.X());
+                break;
+            case 0x65:
+                Operations_t::mem_t::reg_load(operands.X());
+                break;
+
+            default:
+                Operations_t::invalid_t::handle();
+                break;
+        }
     }
 };
 

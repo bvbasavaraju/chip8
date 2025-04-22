@@ -94,6 +94,22 @@ concept HasMemOperation = requires {
     { T::mem_t::reg_load(std::uint8_t{}) };
 };
 
+// Timer Operation
+template <typename T>
+concept HasTimerOperation = requires {
+    typename T::timer_t;
+    { T::timer_t::get_delay(std::uint8_t{}) };
+    { T::timer_t::set_delay(std::uint8_t{}) };
+    { T::timer_t::set_sound_timer(std::uint8_t{}) };
+};
+
+// BCD operation
+template <typename T>
+concept HasBcdOperation = requires {
+    typename T::bcd_t;
+    { T::bcd_t::set(std::uint8_t{}) };
+};
+
 // Invalid operation
 template <typename T>
 concept InvalidOperation = requires {
@@ -112,10 +128,7 @@ concept SupportsChip8Ops = requires {
     requires HasBitwiseOperation<T>;
     requires HasKeyOperation<T>;
     requires HasMemOperation<T>;
+    requires HasTimerOperation<T>;
+    requires HasBcdOperation<T>;
     requires InvalidOperation<T>;
-
-
-    //  TODO
-    // typename T::bcd_t;
-    // typename T::timer_t;
 };

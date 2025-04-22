@@ -115,9 +115,21 @@ struct ops_t {
         static auto reg_load(std::uint8_t x) { reg_load_flag = true; }
     };
 
-    // struct bcd_t;
-    // struct mem_t;
-    // struct timer_t;
+    struct timer_t {
+        static bool get_delay_flag;
+        static bool set_delay_flag;
+        static bool set_sound_timer_flag;
+
+        static auto get_delay(std::uint8_t x) { get_delay_flag = true; }
+        static auto set_delay(std::uint8_t x) { set_delay_flag = true; }
+        static auto set_sound_timer(std::uint8_t x) { set_sound_timer_flag = true; }
+    };
+
+    struct bcd_t {
+        static bool flag;
+
+        static auto set(std::uint8_t x) { flag = true; }
+    };
 };
 
 //initialize the flags 
@@ -155,6 +167,10 @@ bool ops_t::mem_t::add_reg_flag = false;
 bool ops_t::mem_t::set_to_sprite_char_flag = false;
 bool ops_t::mem_t::reg_dump_flag = false;
 bool ops_t::mem_t::reg_load_flag = false;
+bool ops_t::timer_t::get_delay_flag = false;
+bool ops_t::timer_t::set_delay_flag = false;
+bool ops_t::timer_t::set_sound_timer_flag = false;
+bool ops_t::bcd_t::flag = false;
 
 // decode and execute and validate
 static auto decode_execute_and_validate(std::uint16_t inst, auto &flag, bool expected_decode_operands_status = true) -> void {
@@ -452,5 +468,53 @@ TEST_F(opcodes_test, opcode_E) {
 }
 
 TEST_F(opcodes_test, opcode_F) {
-    // TODO
+    decode_execute_and_validate(0xF107, ops_t::timer_t::get_delay_flag);
+    decode_execute_and_validate(0xFA07, ops_t::timer_t::get_delay_flag);
+    decode_execute_and_validate(0xFF07, ops_t::timer_t::get_delay_flag);
+    decode_execute_and_validate(0xF007, ops_t::timer_t::get_delay_flag);
+
+    decode_execute_and_validate(0xF10A, ops_t::keyop_t::read_key_stroke_flag);
+    decode_execute_and_validate(0xFA0A, ops_t::keyop_t::read_key_stroke_flag);
+    decode_execute_and_validate(0xFF0A, ops_t::keyop_t::read_key_stroke_flag);
+    decode_execute_and_validate(0xF00A, ops_t::keyop_t::read_key_stroke_flag);
+
+    decode_execute_and_validate(0xF115, ops_t::timer_t::set_delay_flag);
+    decode_execute_and_validate(0xFA15, ops_t::timer_t::set_delay_flag);
+    decode_execute_and_validate(0xFF15, ops_t::timer_t::set_delay_flag);
+    decode_execute_and_validate(0xF015, ops_t::timer_t::set_delay_flag);
+
+    decode_execute_and_validate(0xF118, ops_t::timer_t::set_sound_timer_flag);
+    decode_execute_and_validate(0xFA18, ops_t::timer_t::set_sound_timer_flag);
+    decode_execute_and_validate(0xFF18, ops_t::timer_t::set_sound_timer_flag);
+    decode_execute_and_validate(0xF018, ops_t::timer_t::set_sound_timer_flag);
+
+    decode_execute_and_validate(0xF11E, ops_t::mem_t::add_reg_flag);
+    decode_execute_and_validate(0xFA1E, ops_t::mem_t::add_reg_flag);
+    decode_execute_and_validate(0xFF1E, ops_t::mem_t::add_reg_flag);
+    decode_execute_and_validate(0xF01E, ops_t::mem_t::add_reg_flag);
+
+    decode_execute_and_validate(0xF129, ops_t::mem_t::set_to_sprite_char_flag);
+    decode_execute_and_validate(0xFA29, ops_t::mem_t::set_to_sprite_char_flag);
+    decode_execute_and_validate(0xFF29, ops_t::mem_t::set_to_sprite_char_flag);
+    decode_execute_and_validate(0xF029, ops_t::mem_t::set_to_sprite_char_flag);
+
+    decode_execute_and_validate(0xF133, ops_t::bcd_t::flag);
+    decode_execute_and_validate(0xFA33, ops_t::bcd_t::flag);
+    decode_execute_and_validate(0xFF33, ops_t::bcd_t::flag);
+    decode_execute_and_validate(0xF033, ops_t::bcd_t::flag);
+
+    decode_execute_and_validate(0xF155, ops_t::mem_t::reg_dump_flag);
+    decode_execute_and_validate(0xFA55, ops_t::mem_t::reg_dump_flag);
+    decode_execute_and_validate(0xFF55, ops_t::mem_t::reg_dump_flag);
+    decode_execute_and_validate(0xF055, ops_t::mem_t::reg_dump_flag);
+
+    decode_execute_and_validate(0xF165, ops_t::mem_t::reg_load_flag);
+    decode_execute_and_validate(0xFA65, ops_t::mem_t::reg_load_flag);
+    decode_execute_and_validate(0xFF65, ops_t::mem_t::reg_load_flag);
+    decode_execute_and_validate(0xF065, ops_t::mem_t::reg_load_flag);
+
+    decode_execute_and_validate(0xF123, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xFABC, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xFFEE, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xF073, ops_t::invalid_t::flag);
 }
