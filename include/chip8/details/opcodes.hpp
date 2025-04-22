@@ -57,13 +57,19 @@ template <> struct opcode_t<0> : detail::opcode_base<opcode_t<0>> {
         if (operands.NNN_is_valid()) {
             Operations_t::call_t::perform();
         } else {
-            auto val = operands.NN();
-            if(val == 0xE0) {
-                Operations_t::display_t::clear_screen();
-            } else if (val == 0xEE) {
-                Operations_t::flow_t::function_return();
-            } else {
-                Operations_t::invalid_t::handle();
+            switch(operands.NN()) 
+            {
+                case 0xE0:
+                    Operations_t::display_t::clear_screen();
+                    break;
+
+                case 0xEE:
+                    Operations_t::flow_t::function_return();
+                    break;
+
+                default:
+                    Operations_t::invalid_t::handle();
+                    break;
             }
         }
     }
@@ -262,7 +268,39 @@ template <> struct opcode_t<8> : detail::opcode_base<opcode_t<8>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        switch (operands.N())
+        {
+        case 0:
+            Operations_t::assign_t::set_reg_to_reg(operands.X(), operands.Y());
+            break;
+        case 1:
+            Operations_t::bitwise_t::or_op(operands.X(), operands.Y());
+            break;
+        case 2:
+            Operations_t::bitwise_t::and_op(operands.X(), operands.Y());
+            break;
+        case 3:
+            Operations_t::bitwise_t::xor_op(operands.X(), operands.Y());
+            break;
+        case 4:
+            Operations_t::math_t::add_reg_with_reg_with_carry(operands.X(), operands.Y());
+            break;
+        case 5:
+            Operations_t::math_t::sub_reg_with_reg_with_carry(operands.X(), operands.Y());
+            break;
+        case 6:
+            Operations_t::bitwise_t::right_shift(operands.X(), operands.Y());
+            break;
+        case 7:
+            Operations_t::math_t::sub_reg_with_reg_with_carry2(operands.X(), operands.Y());
+            break;
+        case 0xE:
+            Operations_t::bitwise_t::left_shift(operands.X(), operands.Y());
+            break;
+        default:
+            Operations_t::invalid_t::handle();
+            break;
+        }
     }
 };
 
@@ -314,7 +352,7 @@ template <> struct opcode_t<0xA> : detail::opcode_base<opcode_t<0xA>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        Operations_t::mem_t::set_to_address(operands.NNN());
     }
 };
 
@@ -337,7 +375,7 @@ template <> struct opcode_t<0xB> : detail::opcode_base<opcode_t<0xB>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        Operations_t::flow_t::jump_with_offset(operands.NNN());
     }
 };
 
@@ -361,7 +399,7 @@ template <> struct opcode_t<0xC> : detail::opcode_base<opcode_t<0xC>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        Operations_t::assign_t::set_reg_to_rand(operands.X(), operands.NN());
     }
 };
 
@@ -386,7 +424,7 @@ template <> struct opcode_t<0xD> : detail::opcode_base<opcode_t<0xD>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        Operations_t::display_t::draw(operands.X(), operands.Y(), operands.N());
     }
 };
 
@@ -410,7 +448,20 @@ template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
     static auto execute(operands_t const& operands) -> void {
-        //TODO
+        switch(operands.NN()) 
+        {
+            case 0x9E:
+                Operations_t::keyop_t::skip_if_key_eq_to_reg(operands.X());
+                break;
+
+            case 0xA1:
+                Operations_t::keyop_t::skip_if_key_not_eq_to_reg(operands.X());
+                break;
+
+            default:
+                Operations_t::invalid_t::handle();
+                break;
+        }
     }
 };
 

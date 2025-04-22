@@ -19,6 +19,7 @@ template <typename T>
 concept HasDisplayOperation = requires {
     typename T::display_t;
     { T::display_t::clear_screen() };
+    { T::display_t::draw(std::uint8_t{}, std::uint8_t{}, std::uint8_t{})};
 };
 
 // Flow operation
@@ -27,6 +28,7 @@ concept HasFlowOperation = requires {
     typename T::flow_t;
     { T::flow_t::function_return() };
     { T::flow_t::jump(std::uint16_t{}) };
+    { T::flow_t::jump_with_offset(std::uint16_t{}) };
     { T::flow_t::function_call_at(std::uint16_t{}) };
 };
 
@@ -46,6 +48,7 @@ concept HasAssignmentOperation = requires {
     typename T::assign_t;
     { T::assign_t::set_reg_to_val(std::uint8_t{}, std::uint8_t{}) };
     { T::assign_t::set_reg_to_reg(std::uint8_t{}, std::uint8_t{}) };
+    { T::assign_t::set_reg_to_rand(std::uint8_t{}, std::uint8_t{}) };
 };
 
 // Math operation
@@ -56,6 +59,39 @@ concept HasMathOperation = requires {
     { T::math_t::add_reg_with_val_without_carry(std::uint8_t{}, std::uint8_t{}) };
     { T::math_t::add_reg_with_reg_with_carry(std::uint8_t{}, std::uint8_t{}) };
     { T::math_t::add_reg_with_reg_without_carry(std::uint8_t{}, std::uint8_t{}) };
+    { T::math_t::sub_reg_with_reg_with_carry(std::uint8_t{}, std::uint8_t{}) };
+    { T::math_t::sub_reg_with_reg_with_carry2(std::uint8_t{}, std::uint8_t{}) };
+};
+
+// Bitwise Operation
+template <typename T>
+concept HasBitwiseOperation = requires {
+    typename T::bitwise_t;
+    { T::bitwise_t::or_op(std::uint8_t{}, std::uint8_t{}) };
+    { T::bitwise_t::and_op(std::uint8_t{}, std::uint8_t{}) };
+    { T::bitwise_t::xor_op(std::uint8_t{}, std::uint8_t{}) };
+    { T::bitwise_t::right_shift(std::uint8_t{}, std::uint8_t{}) };
+    { T::bitwise_t::left_shift(std::uint8_t{}, std::uint8_t{}) };
+};
+
+// Key Operation
+template <typename T>
+concept HasKeyOperation = requires {
+    typename T::keyop_t;
+    { T::keyop_t::skip_if_key_eq_to_reg(std::uint8_t{}) };
+    { T::keyop_t::skip_if_key_not_eq_to_reg(std::uint8_t{}) };
+    { T::keyop_t::read_key_stroke(std::uint8_t{}) };
+};
+
+// Mem Operation
+template <typename T>
+concept HasMemOperation = requires {
+    typename T::mem_t;
+    { T::mem_t::set_to_address(std::uint16_t{}) };
+    { T::mem_t::add_reg(std::uint8_t{}) };
+    { T::mem_t::set_to_sprite_char(std::uint8_t{}) };
+    { T::mem_t::reg_dump(std::uint8_t{}) };
+    { T::mem_t::reg_load(std::uint8_t{}) };
 };
 
 // Invalid operation
@@ -73,15 +109,13 @@ concept SupportsChip8Ops = requires {
     requires HasConditionalOperation<T>;
     requires HasAssignmentOperation<T>;
     requires HasMathOperation<T>;
+    requires HasBitwiseOperation<T>;
+    requires HasKeyOperation<T>;
+    requires HasMemOperation<T>;
     requires InvalidOperation<T>;
 
 
     //  TODO
-    // typename T::assign_t;
     // typename T::bcd_t;
-    // typename T::bitwise_t;
-    // typename T::math_t;
-    // typename T::mem_t;
-    // typename T::rand_t;
     // typename T::timer_t;
 };

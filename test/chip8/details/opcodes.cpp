@@ -15,16 +15,20 @@ struct ops_t {
 
     struct display_t {
         static bool clear_screen_flag;
+        static bool draw_flag;
 
         static auto clear_screen() -> void { clear_screen_flag = true; }
+        static auto draw(std::uint8_t pos_x, std::uint8_t pos_y, std::uint8_t height) -> void { draw_flag = true; }
     };
     
     struct flow_t {
         static bool jump_flag;
+        static bool jump_with_offset_flag;
         static bool function_return_flag;
         static bool function_call_at_flag;
 
         static auto jump(std::uint16_t address) -> void { jump_flag = true; }
+        static auto jump_with_offset(std::uint16_t address) -> void { jump_with_offset_flag = true; }
         static auto function_return() -> void { function_return_flag = true; }
         static auto function_call_at(std::uint16_t address) -> void { function_call_at_flag = true; }
     };
@@ -50,9 +54,11 @@ struct ops_t {
     struct assign_t {
         static bool set_reg_to_val_flag;
         static bool set_reg_to_reg_flag;
+        static bool set_reg_to_rand_flag;
 
         static auto set_reg_to_val(std::uint8_t x, std::uint8_t val) { set_reg_to_val_flag = true; }
         static auto set_reg_to_reg(std::uint8_t x, std::uint8_t y) { set_reg_to_reg_flag = true; }
+        static auto set_reg_to_rand(std::uint8_t x, std::uint8_t mask) { set_reg_to_rand_flag = true; }
     };
 
     struct math_t {
@@ -60,26 +66,66 @@ struct ops_t {
         static bool add_reg_with_val_without_carry_flag;
         static bool add_reg_with_reg_with_carry_flag;
         static bool add_reg_with_reg_without_carry_flag;
+        static bool sub_reg_with_reg_with_carry_flag;
+        static bool sub_reg_with_reg_with_carry2_flag;
 
         static auto add_reg_with_val_with_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_val_with_carry_flag = true; }
         static auto add_reg_with_val_without_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_val_without_carry_flag = true; }
         static auto add_reg_with_reg_with_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_reg_with_carry_flag = true; }
         static auto add_reg_with_reg_without_carry(std::uint8_t x, std::uint8_t val) { add_reg_with_reg_without_carry_flag = true; }
+        static auto sub_reg_with_reg_with_carry(std::uint8_t x, std::uint8_t val) { sub_reg_with_reg_with_carry_flag = true; }
+        static auto sub_reg_with_reg_with_carry2(std::uint8_t x, std::uint8_t val) { sub_reg_with_reg_with_carry2_flag = true; }
+    };
+
+    struct bitwise_t {
+        static bool or_flag;
+        static bool and_flag;
+        static bool xor_flag;
+        static bool right_shift_flag;
+        static bool left_shift_flag;
+
+        static auto or_op(std::uint8_t x, std::uint8_t y) { or_flag = true; }
+        static auto and_op(std::uint8_t x, std::uint8_t y) { and_flag = true; }
+        static auto xor_op(std::uint8_t x, std::uint8_t y) { xor_flag = true; }
+        static auto right_shift(std::uint8_t x, std::uint8_t y) { right_shift_flag = true; }
+        static auto left_shift(std::uint8_t x, std::uint8_t y) { left_shift_flag = true; }
+    };
+
+    struct keyop_t {
+        static bool skip_if_key_eq_to_reg_flag;
+        static bool skip_if_key_not_eq_to_reg_flag;
+        static bool read_key_stroke_flag;
+
+        static auto skip_if_key_eq_to_reg(std::uint8_t x) { skip_if_key_eq_to_reg_flag = true; }
+        static auto skip_if_key_not_eq_to_reg(std::uint8_t x) { skip_if_key_not_eq_to_reg_flag = true; }
+        static auto read_key_stroke(std::uint8_t x) { read_key_stroke_flag = true; }
+    };
+
+    struct mem_t {
+        static bool set_to_address_flag;
+        static bool add_reg_flag;
+        static bool set_to_sprite_char_flag;
+        static bool reg_dump_flag;
+        static bool reg_load_flag;
+
+        static auto set_to_address(std::uint16_t address) { set_to_address_flag = true; }
+        static auto add_reg(std::uint8_t x) { add_reg_flag = true; }
+        static auto set_to_sprite_char(std::uint8_t x) { set_to_sprite_char_flag = true; }
+        static auto reg_dump(std::uint8_t x) { reg_dump_flag = true; }
+        static auto reg_load(std::uint8_t x) { reg_load_flag = true; }
     };
 
     // struct bcd_t;
-    // struct assign_t;
-    // struct bitwise_t;
-    // struct math_t;
     // struct mem_t;
-    // struct rand_t;
     // struct timer_t;
 };
 
 //initialize the flags 
 bool ops_t::call_t::flag = false;
 bool ops_t::display_t::clear_screen_flag = false;
+bool ops_t::display_t::draw_flag = false;
 bool ops_t::flow_t::jump_flag = false;
+bool ops_t::flow_t::jump_with_offset_flag = false;
 bool ops_t::flow_t::function_return_flag = false;
 bool ops_t::flow_t::function_call_at_flag = false;
 bool ops_t::invalid_t::flag = false;
@@ -89,10 +135,26 @@ bool ops_t::conditional_t::skip_if_eq_to_reg_flag = false;
 bool ops_t::conditional_t::skip_if_not_eq_to_reg_flag = false;
 bool ops_t::assign_t::set_reg_to_val_flag = false;
 bool ops_t::assign_t::set_reg_to_reg_flag = false;
+bool ops_t::assign_t::set_reg_to_rand_flag = false;
 bool ops_t::math_t::add_reg_with_val_with_carry_flag = false;
 bool ops_t::math_t::add_reg_with_val_without_carry_flag = false;
 bool ops_t::math_t::add_reg_with_reg_with_carry_flag = false;
 bool ops_t::math_t::add_reg_with_reg_without_carry_flag = false;
+bool ops_t::math_t::sub_reg_with_reg_with_carry_flag = false;
+bool ops_t::math_t::sub_reg_with_reg_with_carry2_flag = false;
+bool ops_t::bitwise_t::or_flag = false;
+bool ops_t::bitwise_t::and_flag = false;
+bool ops_t::bitwise_t::xor_flag = false;
+bool ops_t::bitwise_t::right_shift_flag = false;
+bool ops_t::bitwise_t::left_shift_flag = false;
+bool ops_t::keyop_t::skip_if_key_eq_to_reg_flag = false;
+bool ops_t::keyop_t::skip_if_key_not_eq_to_reg_flag = false;
+bool ops_t::keyop_t::read_key_stroke_flag = false;
+bool ops_t::mem_t::set_to_address_flag = false;
+bool ops_t::mem_t::add_reg_flag = false;
+bool ops_t::mem_t::set_to_sprite_char_flag = false;
+bool ops_t::mem_t::reg_dump_flag = false;
+bool ops_t::mem_t::reg_load_flag = false;
 
 // decode and execute and validate
 static auto decode_execute_and_validate(std::uint16_t inst, auto &flag, bool expected_decode_operands_status = true) -> void {
@@ -278,7 +340,58 @@ TEST_F(opcodes_test, opcode_7) {
 }
 
 TEST_F(opcodes_test, opcode_8) {
-    // TODO
+    decode_execute_and_validate(0x8120, ops_t::assign_t::set_reg_to_reg_flag);
+    decode_execute_and_validate(0x8AB0, ops_t::assign_t::set_reg_to_reg_flag);
+    decode_execute_and_validate(0x8FE0, ops_t::assign_t::set_reg_to_reg_flag);
+    decode_execute_and_validate(0x8020, ops_t::assign_t::set_reg_to_reg_flag);
+
+    decode_execute_and_validate(0x8121, ops_t::bitwise_t::or_flag);
+    decode_execute_and_validate(0x8AB1, ops_t::bitwise_t::or_flag);
+    decode_execute_and_validate(0x8FE1, ops_t::bitwise_t::or_flag);
+    decode_execute_and_validate(0x8021, ops_t::bitwise_t::or_flag);
+
+    decode_execute_and_validate(0x8122, ops_t::bitwise_t::and_flag);
+    decode_execute_and_validate(0x8AB2, ops_t::bitwise_t::and_flag);
+    decode_execute_and_validate(0x8FE2, ops_t::bitwise_t::and_flag);
+    decode_execute_and_validate(0x8022, ops_t::bitwise_t::and_flag);
+
+    decode_execute_and_validate(0x8123, ops_t::bitwise_t::xor_flag);
+    decode_execute_and_validate(0x8AB3, ops_t::bitwise_t::xor_flag);
+    decode_execute_and_validate(0x8FE3, ops_t::bitwise_t::xor_flag);
+    decode_execute_and_validate(0x8023, ops_t::bitwise_t::xor_flag);
+
+    decode_execute_and_validate(0x8124, ops_t::math_t::add_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8AB4, ops_t::math_t::add_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8FE4, ops_t::math_t::add_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8024, ops_t::math_t::add_reg_with_reg_with_carry_flag);
+
+    decode_execute_and_validate(0x8125, ops_t::math_t::sub_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8AB5, ops_t::math_t::sub_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8FE5, ops_t::math_t::sub_reg_with_reg_with_carry_flag);
+    decode_execute_and_validate(0x8025, ops_t::math_t::sub_reg_with_reg_with_carry_flag);
+
+    decode_execute_and_validate(0x8126, ops_t::bitwise_t::right_shift_flag);
+    decode_execute_and_validate(0x8AB6, ops_t::bitwise_t::right_shift_flag);
+    decode_execute_and_validate(0x8FE6, ops_t::bitwise_t::right_shift_flag);
+    decode_execute_and_validate(0x8026, ops_t::bitwise_t::right_shift_flag);
+
+    decode_execute_and_validate(0x8127, ops_t::math_t::sub_reg_with_reg_with_carry2_flag);
+    decode_execute_and_validate(0x8AB7, ops_t::math_t::sub_reg_with_reg_with_carry2_flag);
+    decode_execute_and_validate(0x8FE7, ops_t::math_t::sub_reg_with_reg_with_carry2_flag);
+    decode_execute_and_validate(0x8027, ops_t::math_t::sub_reg_with_reg_with_carry2_flag);
+
+    decode_execute_and_validate(0x812E, ops_t::bitwise_t::left_shift_flag);
+    decode_execute_and_validate(0x8ABE, ops_t::bitwise_t::left_shift_flag);
+    decode_execute_and_validate(0x8FEE, ops_t::bitwise_t::left_shift_flag);
+    decode_execute_and_validate(0x802E, ops_t::bitwise_t::left_shift_flag);
+
+    decode_execute_and_validate(0x8128, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x8AB9, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x8FEA, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x802B, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x802C, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x802D, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0x802F, ops_t::invalid_t::flag);
 }
 
 TEST_F(opcodes_test, opcode_9) {
@@ -294,23 +407,48 @@ TEST_F(opcodes_test, opcode_9) {
 }
 
 TEST_F(opcodes_test, opcode_A) {
-    // TODO
+    decode_execute_and_validate(0xA123, ops_t::mem_t::set_to_address_flag);
+    decode_execute_and_validate(0xAABC, ops_t::mem_t::set_to_address_flag);
+    decode_execute_and_validate(0xAFEE, ops_t::mem_t::set_to_address_flag);
+    decode_execute_and_validate(0xA023, ops_t::mem_t::set_to_address_flag);
 }
 
 TEST_F(opcodes_test, opcode_B) {
-    // TODO
+    decode_execute_and_validate(0xB123, ops_t::flow_t::jump_with_offset_flag);
+    decode_execute_and_validate(0xBABC, ops_t::flow_t::jump_with_offset_flag);
+    decode_execute_and_validate(0xBFEE, ops_t::flow_t::jump_with_offset_flag);
+    decode_execute_and_validate(0xB023, ops_t::flow_t::jump_with_offset_flag);
 }
 
 TEST_F(opcodes_test, opcode_C) {
-    // TODO
+    decode_execute_and_validate(0xC123, ops_t::assign_t::set_reg_to_rand_flag);
+    decode_execute_and_validate(0xCABC, ops_t::assign_t::set_reg_to_rand_flag);
+    decode_execute_and_validate(0xCFEE, ops_t::assign_t::set_reg_to_rand_flag);
+    decode_execute_and_validate(0xC023, ops_t::assign_t::set_reg_to_rand_flag);
 }
 
 TEST_F(opcodes_test, opcode_D) {
-    // TODO
+    decode_execute_and_validate(0xD123, ops_t::display_t::draw_flag);
+    decode_execute_and_validate(0xDABC, ops_t::display_t::draw_flag);
+    decode_execute_and_validate(0xDFEE, ops_t::display_t::draw_flag);
+    decode_execute_and_validate(0xD023, ops_t::display_t::draw_flag);
 }
 
 TEST_F(opcodes_test, opcode_E) {
-    // TODO
+    decode_execute_and_validate(0xE19E, ops_t::keyop_t::skip_if_key_eq_to_reg_flag);
+    decode_execute_and_validate(0xEA9E, ops_t::keyop_t::skip_if_key_eq_to_reg_flag);
+    decode_execute_and_validate(0xEF9E, ops_t::keyop_t::skip_if_key_eq_to_reg_flag);
+    decode_execute_and_validate(0xE09E, ops_t::keyop_t::skip_if_key_eq_to_reg_flag);
+
+    decode_execute_and_validate(0xE1A1, ops_t::keyop_t::skip_if_key_not_eq_to_reg_flag);
+    decode_execute_and_validate(0xEAA1, ops_t::keyop_t::skip_if_key_not_eq_to_reg_flag);
+    decode_execute_and_validate(0xEFA1, ops_t::keyop_t::skip_if_key_not_eq_to_reg_flag);
+    decode_execute_and_validate(0xE0A1, ops_t::keyop_t::skip_if_key_not_eq_to_reg_flag);
+
+    decode_execute_and_validate(0xE123, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xEABC, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xEFEE, ops_t::invalid_t::flag);
+    decode_execute_and_validate(0xE023, ops_t::invalid_t::flag);
 }
 
 TEST_F(opcodes_test, opcode_F) {
