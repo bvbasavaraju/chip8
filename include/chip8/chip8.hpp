@@ -21,8 +21,12 @@ namespace chip8 {
             return instruction;
         }
 
-        auto decode(auto const instruction) -> intruction_t {
+        auto decode(auto const instruction) const -> const instruction_t {
             return instruction_t::decode(instruction);
+        }
+
+        auto execute(instruction_t const& inst) -> void {
+
         }
     };
 

@@ -14,15 +14,14 @@ private:
     operands_((inst & 0x0FFF)) {}
 
 public:
-    static const auto decode(std::uint16_t inst) {
+    static const auto decode(std::uint16_t inst) -> const instruction_t {
         return instruction_t{(inst)};
     }
 
     template <typename Operations_t>
     const auto execute() const {
+
         operands_t operands;
-
-
         auto run  = [&]<std::uint8_t op_val>() -> void {
             auto status = opcode_t<op_val>::decode_operands(operands_, operands);
             if(!status) {
