@@ -4,8 +4,10 @@ set(CHIP8_TEST chip8_test)
 
 add_executable(
     ${CHIP8_TEST} 
+    chip8/details/instruction.cpp
     chip8/details/operands.cpp
-    chip8/details/opcodes.cpp)
+    chip8/details/opcodes.cpp
+    chip8/details/operations.cpp)
 
 target_include_directories(
     ${CHIP8_TEST} 

@@ -28,6 +28,8 @@ struct opcode_base {
 
 }   // namespace detail
 
+//TODO: Instead of number Can it be a type of some number 
+//  like: std::integral_constant<uint8_t, 0> will this work!?
 template <std::uint8_t op>
 struct opcode_t;
 
