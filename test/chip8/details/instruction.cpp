@@ -11,7 +11,7 @@ static auto decode_execute_and_validate(std::uint16_t inst_val, auto &flag, bool
 
     ASSERT_FALSE(flag);
 
-    chip8::instruction_t inst = chip8::instruction_t::decode(inst_val);
+    auto inst = chip8::instruction_t::decode(inst_val);
     inst.execute<ops_t>();
 
     if (expected_decode_operands_status) {
