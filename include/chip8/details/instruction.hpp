@@ -14,7 +14,7 @@ private:
     operands_((inst & 0x0FFF)) {}
 
 public:
-    static const auto decode(std::uint16_t inst) -> const instruction_t {
+    static auto decode(std::uint16_t inst) -> instruction_t {
         return instruction_t{(inst)};
     }
 
