@@ -45,17 +45,14 @@ struct core_t {
     };
 
     private:
-    chip8_resources_t res;
+    resources_t& res;
 
     public:
-    core_t(chip8_resources_t& res_)
+    core_t(resources_t& res_)
     : res(res_) {};
 
     auto fetch() -> std::uint16_t {
-        std::uint16_t inst = (res.ram[res.pc] << 8) | (res.ram[res.pc+1]);
-        res.pc += 2;
-
-        return inst;
+        return res.read_instruction();
     }
 
     auto decode(auto const instruction) const -> instruction_t {
@@ -64,6 +61,14 @@ struct core_t {
 
     auto execute(instruction_t const& inst) -> void {
         inst.execute<operations_t>();
+    }
+
+    auto load_instruction(std::uint16_t inst) -> bool {
+        return res.load_instruction(inst);
+    }
+
+    auto load_program() -> bool {
+        return res.load_program();
     }
 };
 
