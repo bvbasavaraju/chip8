@@ -63,12 +63,8 @@ struct core_t {
         inst.execute<operations_t>();
     }
 
-    auto load_instruction(std::uint16_t inst) -> bool {
-        return res.load_instruction(inst);
-    }
-
-    auto load_program() -> bool {
-        return res.load_program();
+    auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
+        return res.load_program(pgm);
     }
 };
 

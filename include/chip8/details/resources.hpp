@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <vector>
 
 namespace chip8 {
 
@@ -15,6 +16,16 @@ struct resources_t {
     std::stack<std::uint16_t> sp; 
     std::array<std::uint8_t, REG_COUNT> vx;
     std::array<std::uint8_t, RAM_SIZE> ram;
+
+    auto load_instruction(std::uint16_t inst) {
+        if (ram_index >= 4094) {
+            //TODO: log error
+            return;   // ran out of memory
+        }
+
+        ram[ram_index++] = ((inst & 0xFF00) >> 8);
+        ram[ram_index++] = (inst & 0xFF);
+    }
 
     public:
     resources_t() 
@@ -32,19 +43,17 @@ struct resources_t {
         return ((ram[pc++] << 8) | (ram[pc++]));
     }
 
-    auto load_instruction(std::uint16_t inst) -> bool {
-        if (ram_index >= 4094) {
-            return false;   // ran out of memory
+    auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
+        auto len = pgm.size();
+        if (ram_index > 0 || len <= 0 || len >= 4096) {
+            return false;
         }
 
-        ram[ram_index++] = ((inst & 0xFF00) >> 8);
-        ram[ram_index++] = (inst & 0xFF);
-        return true;
-    }
+        for (auto inst : pgm) {
+            load_instruction(inst);
+        }
 
-    auto load_program() -> bool {
-        // TODO
-        return false;
+        return true;
     }
     auto reset(bool erase_ram = true) -> void {
         ram_index = 0;
