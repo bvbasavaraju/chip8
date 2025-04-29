@@ -30,6 +30,8 @@ struct core_t {
     public:
     //Operations
     struct operations_t {
+
+        // TODO initialise the same instance resources to all operations!
         using call_t = Call;
         using display_t = Display;
         using flow_t = Flow;

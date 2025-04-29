@@ -19,6 +19,7 @@ public:
     }
 
     template <typename Operations_t>
+    requires SupportsChip8Ops<Operations_t>
     const auto execute() const {
 
         operands_t operands;
