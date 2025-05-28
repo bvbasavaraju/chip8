@@ -124,4 +124,17 @@ struct ops_t {
 
         static auto set(std::uint8_t x) { flag = true; }
     };
+
+    call_t call;
+    display_t display;
+    flow_t flow;
+    conditional_t conditional;
+    assign_t assign;
+    math_t math;
+    bitwise_t bitwise;
+    keyop_t keyop;
+    mem_t mem;
+    timer_t timer;
+    bcd_t bcd;
+    invalid_t invalid;
 };

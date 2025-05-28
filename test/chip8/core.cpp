@@ -64,11 +64,11 @@ auto run = [](chip8::resources_t &res, chip8_core_t &c8_core, bool &flag, std::u
     res.reset(true);
 };
 
-template <std::uint16_t ... insts>
+template <std::uint16_t ... instructions>
 auto fetch_decode_execute(bool &flag) {
     chip8::resources_t res;
     chip8_core_t c8_core(res);
-    (run(res, c8_core, flag, insts), ...);
+    (run(res, c8_core, flag, instructions), ...);
 }
 
 TEST_F(core_test, empty_program_test) {

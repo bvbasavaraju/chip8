@@ -20,7 +20,7 @@ public:
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    const auto execute() const {
+    const auto execute(Operations_t &ops) const {
 
         operands_t operands;
         auto run  = [&]<std::uint8_t op_val>() -> void {
@@ -29,7 +29,7 @@ public:
                 // TODO: Log status
             }
 
-            opcode_t<op_val>::template validate_operands_and_execute<Operations_t>(operands);
+            opcode_t<op_val>::template validate_operands_and_execute(operands, ops);
         };
 
         switch (opcode)
@@ -100,7 +100,7 @@ public:
             break;
         
         default:
-            Operations_t::invalid_t::handle();
+            ops.invalid.handle();
             break;
         }
     }
