@@ -16,13 +16,13 @@ template <typename T>
 struct opcode_base {
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto validate_operands_and_execute(operands_t const& operands) -> void {
+    static auto validate_operands_and_execute(operands_t const& operands, Operations_t &ops) -> void {
         if(!T::validate_operands(operands)) {
-            Operations_t::invalid_t::handle();
+            ops.invalid.handle();
             return;
         }
 
-        T::template execute<Operations_t>(operands);
+        T::template execute(operands, ops);
     }
 };
 
@@ -55,22 +55,22 @@ template <> struct opcode_t<0> : detail::opcode_base<opcode_t<0>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
         if (operands.NNN_is_valid()) {
-            Operations_t::call_t::perform();
+            ops.call.perform();
         } else {
             switch(operands.NN()) 
             {
                 case 0xE0:
-                    Operations_t::display_t::clear_screen();
+                    ops.display.clear_screen();
                     break;
 
                 case 0xEE:
-                    Operations_t::flow_t::function_return();
+                    ops.flow.function_return();
                     break;
 
                 default:
-                    Operations_t::invalid_t::handle();
+                    ops.invalid.handle();
                     break;
             }
         }
@@ -95,8 +95,8 @@ template <> struct opcode_t<1> : detail::opcode_base<opcode_t<1>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::flow_t::jump(operands.NNN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.flow.jump(operands.NNN());
     }
 };
 
@@ -118,8 +118,8 @@ template <> struct opcode_t<2> : detail::opcode_base<opcode_t<2>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::flow_t::function_call_at(operands.NNN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.flow.function_call_at(operands.NNN());
     }
 };
 
@@ -142,8 +142,8 @@ template <> struct opcode_t<3> : detail::opcode_base<opcode_t<3>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::conditional_t::skip_if_reg_equal_to_val(operands.X(), operands.NN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.conditional.skip_if_reg_equal_to_val(operands.X(), operands.NN());
     }
 };
 
@@ -166,8 +166,8 @@ template <> struct opcode_t<4> : detail::opcode_base<opcode_t<4>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::conditional_t::skip_if_reg_not_equal_to_val(operands.X(), operands.NN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.conditional.skip_if_reg_not_equal_to_val(operands.X(), operands.NN());
     }
 };
 
@@ -195,8 +195,8 @@ template <> struct opcode_t<5> : detail::opcode_base<opcode_t<5>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::conditional_t::skip_if_reg_equal_to_reg(operands.X(), operands.Y());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.conditional.skip_if_reg_equal_to_reg(operands.X(), operands.Y());
     }
 };
 
@@ -219,8 +219,8 @@ template <> struct opcode_t<6> : detail::opcode_base<opcode_t<6>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::assign_t::set_reg_to_val(operands.X(), operands.NN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.assign.set_reg_to_val(operands.X(), operands.NN());
     }
 };
 
@@ -243,8 +243,8 @@ template <> struct opcode_t<7> : detail::opcode_base<opcode_t<7>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::math_t::add_reg_with_val_without_carry(operands.X(), operands.NN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.math.add_reg_with_val_without_carry(operands.X(), operands.NN());
     }
 };
 
@@ -269,38 +269,38 @@ template <> struct opcode_t<8> : detail::opcode_base<opcode_t<8>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
         switch (operands.N())
         {
         case 0:
-            Operations_t::assign_t::set_reg_to_reg(operands.X(), operands.Y());
+            ops.assign.set_reg_to_reg(operands.X(), operands.Y());
             break;
         case 1:
-            Operations_t::bitwise_t::or_op(operands.X(), operands.Y());
+            ops.bitwise.or_op(operands.X(), operands.Y());
             break;
         case 2:
-            Operations_t::bitwise_t::and_op(operands.X(), operands.Y());
+            ops.bitwise.and_op(operands.X(), operands.Y());
             break;
         case 3:
-            Operations_t::bitwise_t::xor_op(operands.X(), operands.Y());
+            ops.bitwise.xor_op(operands.X(), operands.Y());
             break;
         case 4:
-            Operations_t::math_t::add_reg_with_reg_with_carry(operands.X(), operands.Y());
+            ops.math.add_reg_with_reg_with_carry(operands.X(), operands.Y());
             break;
         case 5:
-            Operations_t::math_t::sub_reg_with_reg_with_carry(operands.X(), operands.Y());
+            ops.math.sub_reg_with_reg_with_carry(operands.X(), operands.Y());
             break;
         case 6:
-            Operations_t::bitwise_t::right_shift(operands.X(), operands.Y());
+            ops.bitwise.right_shift(operands.X(), operands.Y());
             break;
         case 7:
-            Operations_t::math_t::sub_reg_with_reg_with_carry2(operands.X(), operands.Y());
+            ops.math.sub_reg_with_reg_with_carry2(operands.X(), operands.Y());
             break;
         case 0xE:
-            Operations_t::bitwise_t::left_shift(operands.X(), operands.Y());
+            ops.bitwise.left_shift(operands.X(), operands.Y());
             break;
         default:
-            Operations_t::invalid_t::handle();
+            ops.invalid.handle();
             break;
         }
     }
@@ -330,8 +330,8 @@ template <> struct opcode_t<9> : detail::opcode_base<opcode_t<9>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::conditional_t::skip_if_reg_not_equal_to_reg(operands.X(), operands.Y());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.conditional.skip_if_reg_not_equal_to_reg(operands.X(), operands.Y());
     }
 };
 
@@ -353,8 +353,8 @@ template <> struct opcode_t<0xA> : detail::opcode_base<opcode_t<0xA>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::mem_t::set_to_address(operands.NNN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.mem.set_to_address(operands.NNN());
     }
 };
 
@@ -376,8 +376,8 @@ template <> struct opcode_t<0xB> : detail::opcode_base<opcode_t<0xB>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::flow_t::jump_with_offset(operands.NNN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.flow.jump_with_offset(operands.NNN());
     }
 };
 
@@ -400,8 +400,8 @@ template <> struct opcode_t<0xC> : detail::opcode_base<opcode_t<0xC>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::assign_t::set_reg_to_rand(operands.X(), operands.NN());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.assign.set_reg_to_rand(operands.X(), operands.NN());
     }
 };
 
@@ -425,8 +425,8 @@ template <> struct opcode_t<0xD> : detail::opcode_base<opcode_t<0xD>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
-        Operations_t::display_t::draw(operands.X(), operands.Y(), operands.N());
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
+        ops.display.draw(operands.X(), operands.Y(), operands.N());
     }
 };
 
@@ -449,19 +449,19 @@ template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
         switch(operands.NN()) 
         {
             case 0x9E:
-                Operations_t::keyop_t::skip_if_key_eq_to_reg(operands.X());
+                ops.keyop.skip_if_key_eq_to_reg(operands.X());
                 break;
 
             case 0xA1:
-                Operations_t::keyop_t::skip_if_key_not_eq_to_reg(operands.X());
+                ops.keyop.skip_if_key_not_eq_to_reg(operands.X());
                 break;
 
             default:
-                Operations_t::invalid_t::handle();
+                ops.invalid.handle();
                 break;
         }
     }
@@ -486,38 +486,38 @@ template <> struct opcode_t<0xF> : detail::opcode_base<opcode_t<0xF>> {
 
     template <typename Operations_t>
     requires SupportsChip8Ops<Operations_t>
-    static auto execute(operands_t const& operands) -> void {
+    static auto execute(operands_t const& operands, Operations_t &ops) -> void {
         switch(operands.NN()) {
             case 7:
-                Operations_t::timer_t::get_delay(operands.X());
+                ops.timer.get_delay(operands.X());
                 break;
             case 0xA:
-                Operations_t::keyop_t::read_key_stroke(operands.X());
+                ops.keyop.read_key_stroke(operands.X());
                 break;
             case 0x15:
-                Operations_t::timer_t::set_delay(operands.X());
+                ops.timer.set_delay(operands.X());
                 break;
             case 0x18:
-                Operations_t::timer_t::set_sound_timer(operands.X());
+                ops.timer.set_sound_timer(operands.X());
                 break;
             case 0x1E:
-                Operations_t::mem_t::add_reg(operands.X());
+                ops.mem.add_reg(operands.X());
                 break;
             case 0x29:
-                Operations_t::mem_t::set_to_sprite_char(operands.X());
+                ops.mem.set_to_sprite_char(operands.X());
                 break;
             case 0x33:
-                Operations_t::bcd_t::set(operands.X());
+                ops.bcd.set(operands.X());
                 break;
             case 0x55:
-                Operations_t::mem_t::reg_dump(operands.X());
+                ops.mem.reg_dump(operands.X());
                 break;
             case 0x65:
-                Operations_t::mem_t::reg_load(operands.X());
+                ops.mem.reg_load(operands.X());
                 break;
 
             default:
-                Operations_t::invalid_t::handle();
+                ops.invalid.handle();
                 break;
         }
     }

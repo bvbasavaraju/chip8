@@ -14,6 +14,7 @@ static auto decode_execute_and_validate(std::uint16_t inst, auto &flag, bool exp
 
     ASSERT_FALSE(flag);
 
+    ops_t ops;
     chip8::operands_t operands;
     auto operand_work  = [&]<std::uint8_t op_val>() -> void {
         auto decode_status = chip8::opcode_t<op_val>::decode_operands(inst, operands);
@@ -23,7 +24,7 @@ static auto decode_execute_and_validate(std::uint16_t inst, auto &flag, bool exp
             ASSERT_FALSE(decode_status);
         }
         
-        chip8::opcode_t<op_val>::template validate_operands_and_execute<ops_t>(operands);
+        chip8::opcode_t<op_val>::template validate_operands_and_execute(operands, ops);
     };
 
     switch (opcode)

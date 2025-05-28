@@ -30,45 +30,43 @@ struct core_t {
     public:
     //Operations
     struct operations_t {
-        using call_t = Call;
-        using display_t = Display;
-        using flow_t = Flow;
-        using conditional_t = Conditional;
-        using assign_t = Assignment;
-        using math_t = Math;
-        using bitwise_t = Bitwise;
-        using keyop_t = KeyOp;
-        using mem_t = Mem;
-        using timer_t = Timer;
-        using bcd_t = Bcd;
-        using invalid_t = Invalid;
+        // TODO initialise the same instance resources to other operations!
+        Call call;
+        Display display;
+        Flow flow;
+        Conditional conditional;
+        Assignment assign;
+        Math math;
+        Bitwise bitwise;
+        KeyOp keyop;
+        Mem mem;
+        Timer timer;
+        Bcd bcd;
+        Invalid invalid;
     };
 
     private:
     resources_t& res;
+    operations_t ops;
 
     public:
     core_t(resources_t& res_)
     : res(res_) {};
 
-    auto fetch() -> std::uint16_t {
+    [[nodiscard]] auto fetch() -> std::uint16_t {
         return res.read_instruction();
     }
 
-    auto decode(auto const instruction) const -> instruction_t {
+    [[nodiscard]] auto decode(auto const instruction) const -> instruction_t {
         return instruction_t::decode(instruction);
     }
 
     auto execute(instruction_t const& inst) -> void {
-        inst.execute<operations_t>();
+        inst.execute(ops);
     }
 
-    auto load_instruction(std::uint16_t inst) -> bool {
-        return res.load_instruction(inst);
-    }
-
-    auto load_program() -> bool {
-        return res.load_program();
+    auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
+        return res.load_program(pgm);
     }
 };
 
