@@ -1,26 +1,14 @@
 #include "chip8/core.hpp"
 #include "show_type.hpp"
 
-#include "details/operations.hpp"
+#include "details/ops.hpp"
 
 #include <gtest/gtest.h>
 
 #include <tuple>
 #include <type_traits>
 
-using chip8_core_t = chip8::core_t<
-                        ops_t::call_t,
-                        ops_t::display_t,
-                        ops_t::flow_t,
-                        ops_t::conditional_t,
-                        ops_t::assign_t,
-                        ops_t::math_t,
-                        ops_t::bitwise_t,
-                        ops_t::keyop_t,
-                        ops_t::mem_t,
-                        ops_t::timer_t,
-                        ops_t::bcd_t,
-                        ops_t::invalid_t>;
+using chip8_core_t = chip8::core_t<ops_t>;
 
 class core_test : public ::testing::Test {
   protected:
@@ -32,7 +20,9 @@ class core_test : public ::testing::Test {
     }
 };
 
-auto run = [](chip8::resources_t &res, chip8_core_t &c8_core, bool &flag, std::uint16_t inst) {
+auto run = [](chip8_core_t &c8_core, bool &flag, std::uint16_t inst) {
+    auto &res = c8_core.resources();
+
     std::vector<std::uint16_t> pgm{inst};
     ASSERT_TRUE(c8_core.load_program(pgm));
     ASSERT_TRUE(res.read_instruction() == inst);    // verify the Ram entry
@@ -66,15 +56,15 @@ auto run = [](chip8::resources_t &res, chip8_core_t &c8_core, bool &flag, std::u
 
 template <std::uint16_t ... instructions>
 auto fetch_decode_execute(bool &flag) {
-    chip8::resources_t res;
-    chip8_core_t c8_core(res);
-    (run(res, c8_core, flag, instructions), ...);
+    ops_t ops;
+    chip8_core_t c8_core(ops);
+    (run(c8_core, flag, instructions), ...);
 }
 
 TEST_F(core_test, empty_program_test) {
-    chip8::resources_t res;
-    chip8_core_t c8_core(res);
-    run(res, c8_core, ops_t::call_t::flag, 0);
+    ops_t ops;
+    chip8_core_t c8_core(ops);
+    run(c8_core, ops_t::call_t::flag, 0);
 }
 
 TEST_F(core_test, opcode_0) {
