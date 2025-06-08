@@ -17,10 +17,10 @@ target_include_directories(
     PUBLIC ${PROJECT_SOURCE_DIR}/lib/sdl/include
 )
 
-target_link_directories(
-    ${PROJECT_NAME} 
-    PRIVATE lib/sdl
-)
+# target_link_directories(
+#    ${PROJECT_NAME} 
+#    PRIVATE lib/sdl
+# )
 
 target_link_libraries(
     ${PROJECT_NAME} 
