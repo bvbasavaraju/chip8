@@ -18,7 +18,7 @@ FetchContent_MakeAvailable(googletest)
 # --------------------------------------- #
 
 add_subdirectory(src)
-# add_subdirectory(lib/SDL)
+add_subdirectory(lib/sdl)
 add_subdirectory(test)
 add_subdirectory(include)
 add_library(${PROJECT_NAME} INTERFACE)
