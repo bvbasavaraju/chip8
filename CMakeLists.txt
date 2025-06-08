@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_BUILD_TYPE "Debug")
 
+option(INCLUDE_EXAMPLE "Include example during build" OFF)
+
 # --------------------------------------- #
 # Adding the GTest support
 include(FetchContent)
@@ -17,8 +19,10 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 # --------------------------------------- #
 
-add_subdirectory(src)
-# add_subdirectory(lib/SDL)
+if(INCLUDE_EXAMPLE)
+  add_subdirectory(examples)
+endif()
+
 add_subdirectory(test)
 add_subdirectory(include)
 add_library(${PROJECT_NAME} INTERFACE)

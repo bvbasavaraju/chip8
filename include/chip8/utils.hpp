@@ -1,6 +1,16 @@
 #pragma once
 
+#include "details/resources.hpp"
+
 #include <concepts>
+#include <memory>
+
+// Has resources
+// TODO: needed/every operation should have API called resources, so that resources can be passed in!!
+template <typename T>
+concept HasResources = requires(T t) {
+    { t.resources(std::shared_ptr<chip8::resources_t>{}) } ;
+};
 
 // Call operation
 template <typename T>
@@ -114,6 +124,7 @@ concept InvalidOperation = requires(T t) {
 
 template <typename T>
 concept SupportsChip8Ops = requires {
+    requires HasResources<T>;
     requires HasCallOperation<T>;
     requires HasDisplayOperation<T>;
     requires HasFlowOperation<T>;

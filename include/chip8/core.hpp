@@ -1,60 +1,38 @@
 #pragma once
 
-#include <cstdint>
-#include <array>
-#include <stack>
 #include "details/resources.hpp"
 #include "details/memory.hpp"
 #include "details/instruction.hpp"
 
+#include <memory>
 
 /*
  * Followed the instructions from: https://en.wikipedia.org/wiki/CHIP-8
  */
 namespace chip8 {
-
-template <
-    typename Call,
-    typename Display,
-    typename Flow,
-    typename Conditional,
-    typename Assignment,
-    typename Math,
-    typename Bitwise,
-    typename KeyOp,
-    typename Mem,
-    typename Timer,
-    typename Bcd,
-    typename Invalid >
+template <typename operations_t>
+requires SupportsChip8Ops<operations_t>
 struct core_t {
+    private:
+    operations_t& ops;
+    std::shared_ptr<resources_t> res;
+
     public:
-    //Operations
-    struct operations_t {
-        // TODO initialise the same instance resources to other operations!
-        Call call;
-        Display display;
-        Flow flow;
-        Conditional conditional;
-        Assignment assign;
-        Math math;
-        Bitwise bitwise;
-        KeyOp keyop;
-        Mem mem;
-        Timer timer;
-        Bcd bcd;
-        Invalid invalid;
+    core_t(operations_t &ops_)
+    : ops(ops_), res(std::make_shared<resources_t>()) {
+        while (res == nullptr) {
+            // As resources was not able to set, There is no way to access this instance of Chip!!
+        }
+
+        ops.resources(res);
     };
 
-    private:
-    resources_t& res;
-    operations_t ops;
-
-    public:
-    core_t(resources_t& res_)
-    : res(res_) {};
+    ~core_t() {
+        res.reset();
+    }
 
     [[nodiscard]] auto fetch() -> std::uint16_t {
-        return res.read_instruction();
+        return res->read_instruction();
     }
 
     [[nodiscard]] auto decode(auto const instruction) const -> instruction_t {
@@ -66,7 +44,15 @@ struct core_t {
     }
 
     auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
-        return res.load_program(pgm);
+        return res->load_program(pgm);
+    }
+
+    auto resources() -> resources_t& {
+        return *res;
+    }
+
+    auto resources() const -> const resources_t& {
+        return *res;
     }
 };
 

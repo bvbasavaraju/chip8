@@ -1,5 +1,9 @@
 #pragma once
 
+#include "chip8/details/resources.hpp"
+
+#include <memory>
+
 struct ops_t {
     struct call_t {
         static bool flag;
@@ -137,4 +141,9 @@ struct ops_t {
     timer_t timer;
     bcd_t bcd;
     invalid_t invalid;
+
+    // ops_t()
+    void resources([[maybe_unused]] std::shared_ptr<chip8::resources_t> res_) {
+        //Nothing to do for this dummy implementation!
+    }
 };

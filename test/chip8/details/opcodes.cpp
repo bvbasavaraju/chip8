@@ -2,7 +2,7 @@
 #include "chip8/details/operands.hpp"
 #include "show_type.hpp"
 
-#include "operations.hpp"
+#include "ops.hpp"
 
 #include <gtest/gtest.h>
 
