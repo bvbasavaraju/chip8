@@ -1,4 +1,4 @@
-project(trail_error)
+project(with_sdl)
 
 set(SRC_FILES ./main.cpp)
 
@@ -7,6 +7,18 @@ set(SRC_FILES ./main.cpp)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
 
+# --------------------------------------- #
+# Adding the GTest support
+include(FetchContent)
+FetchContent_Declare(
+  sdl3
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+  GIT_TAG main
+)
+
+FetchContent_MakeAvailable(sdl3)
+# --------------------------------------- #
+
 add_executable(
     ${PROJECT_NAME} 
     ${SRC_FILES})
@@ -14,16 +26,11 @@ add_executable(
 target_include_directories(
     ${PROJECT_NAME} 
     PUBLIC ${PROJECT_SOURCE_DIR}/include
-    PUBLIC ${PROJECT_SOURCE_DIR}/lib/sdl/include
 )
-
-# target_link_directories(
-#    ${PROJECT_NAME} 
-#    PRIVATE lib/sdl
-# )
 
 target_link_libraries(
     ${PROJECT_NAME} 
     PUBLIC 
     chip8
     SDL3::SDL3)
+
