@@ -43,15 +43,15 @@ struct core_t {
         inst.execute(ops);
     }
 
-    auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
+    [[nodiscard]] auto load_program(std::vector<std::uint16_t> const& pgm) -> bool {
         return res->load_program(pgm);
     }
 
-    auto resources() -> resources_t& {
+    [[nodiscard]] auto resources() -> resources_t& {
         return *res;
     }
 
-    auto resources() const -> const resources_t& {
+    [[nodiscard]] auto resources() const -> const resources_t& {
         return *res;
     }
 };
