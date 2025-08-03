@@ -37,6 +37,7 @@ This modular design makes it easier to maintain, extend, and test individual com
 
 == Core Emulator Logic
 === Fetch, Decode, Execute
+
 A Chip8 emulator operates in a cycle known as "fetch-decode-execute." This cycle is fundamental to interpreting and running Chip8 programs:
 
 - **Fetch:** The emulator reads the next instruction (opcode) from memory, typically 2 bytes at a time.
