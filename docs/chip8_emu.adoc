@@ -13,7 +13,7 @@ Key features:
 
 The project is currently under development. Contributions and feedback
 
-== About Chip8 Emulator
+=== About Chip8 Emulator
 
 A Chip8 emulator is a software program that mimics the behavior of the original Chip8 virtual machine, allowing classic Chip8 games to run on modern hardware. For an emulator to function, it must accurately implement the Chip8 system's core components:
 
@@ -23,7 +23,7 @@ A Chip8 emulator is a software program that mimics the behavior of the original 
 - **Input:** Handles key presses from the user.
 - **Timers:** Implements delay and sound timers as specified by the Chip8 architecture.
 
-== Emulator Structure and Approach
+=== Emulator Structure and Approach
 
 A well-structured emulator separates these responsibilities into distinct modules or classes. In this project, the approach is modular and extensible:
 
@@ -35,8 +35,8 @@ A well-structured emulator separates these responsibilities into distinct module
 
 This modular design makes it easier to maintain, extend, and test individual components. SDL3 integration is used for graphics and input, providing a modern interface for running Chip8 games. The codebase is organized for clarity, with separate files and directories for core logic, examples, and documentation.
 
-== Core Emulator Logic: Fetch, Decode, Execute
-
+== Core Emulator Logic
+=== Fetch, Decode, Execute
 A Chip8 emulator operates in a cycle known as "fetch-decode-execute." This cycle is fundamental to interpreting and running Chip8 programs:
 
 - **Fetch:** The emulator reads the next instruction (opcode) from memory, typically 2 bytes at a time.
@@ -45,7 +45,7 @@ A Chip8 emulator operates in a cycle known as "fetch-decode-execute." This cycle
 
 In this project, the core logic is implemented in `include/chip8/core.hpp`. The file manages the main emulation loop, handling memory access, program counter updates, and invoking the instruction set. The fetch step reads the opcode from memory, decode uses helper structures to interpret the opcode and extract operands, and execute dispatches the correct instruction handler.
 
-== Flexible Instruction Set Expansion
+=== Flexible Instruction Set Expansion
 
 The instruction set is designed for flexibility and extensibility. In `include/chip8/details/instruction.hpp`, instructions are defined as modular entities, allowing developers to easily add, modify, or extend supported instructions. Each instruction can be registered with its opcode pattern and handler function, making it straightforward to support new instructions or custom behaviors.
 
@@ -56,8 +56,8 @@ This modular approach is tightly integrated with:
 
 By separating opcode decoding, operand handling, and instruction execution, the emulator codebase remains clean and maintainable. Developers can expand the instruction set by simply adding new instruction definitions and handlers, without modifying the core emulation loop. This design encourages experimentation and supports future enhancements.
 
-== Core Emulator API Reference
+=== Core
 
 Details on design and implementation of a clean API for the core emulator logic, allowing users to interact with the emulator without needing to understand its internal workings can be found below. The APIs provide methods for fetching, decoding, and executing instructions, as well as loading programs and accessing emulator resources.
 
-<<_core.adoc>>
+link:core.adoc[Core Emulator API Reference]

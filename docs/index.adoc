@@ -3,4 +3,3 @@
 :toclevels: 4
 
 include::chip8_emu.adoc[]
-include::core.adoc[]
