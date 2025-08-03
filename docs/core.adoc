@@ -1,3 +1,7 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
 == Core Emulator API Reference
 
 The `core_t` class is the central component of the Chip8 emulator, managing the main emulation cycle and resources. It provides a clean interface for fetching, decoding, and executing instructions, as well as loading programs and accessing emulator resources.
