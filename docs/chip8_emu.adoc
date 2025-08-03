@@ -61,4 +61,4 @@ By separating opcode decoding, operand handling, and instruction execution, the 
 
 Details on design and implementation of a clean API for the core emulator logic, allowing users to interact with the emulator without needing to understand its internal workings can be found below. The APIs provide methods for fetching, decoding, and executing instructions, as well as loading programs and accessing emulator resources.
 
-link:core.adoc[Core Emulator API Reference]
+link:core.html[Core Emulator API Reference]
