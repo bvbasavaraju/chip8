@@ -1,6 +1,8 @@
 #include <iostream>
 #include <SDL3/SDL.h>
 
+// Chip8 games to be executed! https://github.com/kripod/chip8-roms 
+
 int main() {
     std::cout << "Hello World\n";
 

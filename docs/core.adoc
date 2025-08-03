@@ -1,0 +1,53 @@
+== Core Emulator API Reference
+
+The `core_t` class is the central component of the Chip8 emulator, managing the main emulation cycle and resources. It provides a clean interface for fetching, decoding, and executing instructions, as well as loading programs and accessing emulator resources.
+
+=== Instantiating the Core
+
+To use the core, instantiate it with an operations handler that implements the required Chip8 operations:
+
+[source,cpp]
+----
+chip8::operations_t ops; // Your implementation of Chip8 operations
+chip8::core_t<chip8::operations_t> core(ops);
+----
+
+The `operations_t` type must satisfy the `SupportsChip8Ops` concept, ensuring it provides all necessary methods for instruction execution.
+
+=== Core API Methods
+
+- `fetch() -> std::uint16_t`  
+  Fetches the next instruction (opcode) from memory.
+
+- `decode(instruction) -> instruction_t`  
+  Decodes the fetched instruction into an executable instruction object.
+
+- `execute(const instruction_t& inst) -> void`  
+  Executes the decoded instruction using the provided operations handler.
+
+- `load_program(const std::vector<std::uint16_t>& pgm) -> bool`  
+  Loads a Chip8 program (ROM) into emulator memory.
+
+- `resources() -> resources_t&`  
+  Returns a reference to the emulator's resources (memory, registers, timers, etc.).
+
+- `resources() const -> const resources_t&`  
+  Returns a const reference to the emulator's resources.
+
+=== Features
+
+- **Modular Design:** The core is decoupled from instruction logic and resources, allowing flexible extension and testing.
+- **Type Safety:** Uses C++ templates and concepts to ensure correct usage.
+- **Resource Management:** Manages emulator state and memory via shared pointers.
+- **Custom Operations:** Developers can provide their own operations handler to customize instruction execution.
+
+This API allows users to build a complete emulation loop:
+
+[source,cpp]
+----
+auto opcode = core.fetch();
+auto inst = core.decode(opcode);
+core.execute(inst);
+----
+
+This structure makes it easy to integrate the emulator into larger applications or to create custom Chip8 environments.
