@@ -62,6 +62,6 @@ struct opcode_t<0x9> {
 
 This design keeps the codebase clean, maintainable, and easy to extend for future Chip8 variants or custom instructions. It allows developers to focus on implementing the logic for their specific opcodes without worrying about the underlying emulation mechanics.
 
-link:opcodes.html[Chip8 Opcodes: Overview and API Design]
-link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
-link:operations.html[The `SupportsChip8Ops` Concept]
+- link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+- link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+- link:operations.html[The `SupportsChip8Ops` Concept]

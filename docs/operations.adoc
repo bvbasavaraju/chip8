@@ -108,6 +108,6 @@ The `SupportsChip8Ops` concept acts as a contract, ensuring that your operations
 - Developers can implement their own operations handler for custom use cases, testing, or extensions.
 - As long as the handler satisfies the concept, it can be used seamlessly with the emulator.
 
-link:instruction.html[Instruction API Design and Extensibility]
-link:opcodes.html[Chip8 Opcodes: Overview and API Design]
-link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+- link:instruction.html[Instruction API Design and Extensibility]
+- link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+- link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
