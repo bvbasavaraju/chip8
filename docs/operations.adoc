@@ -1,0 +1,113 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
+== The `SupportsChip8Ops` Concept
+
+The `SupportsChip8Ops` concept is a C++ constraint that ensures any operations handler provided to the `core_t` emulator implements all the required methods for Chip8 instruction execution. This concept acts as an interface contract, guaranteeing that the core can safely call the necessary operations (such as register access, memory manipulation, timers, graphics, and input handling) without knowing the concrete implementation. Internally, it requires several other concepts, each representing a group of related operations.
+
+=== Internally Required Concepts
+
+The following concepts must be satisfied by any type `T` used as a Chip8 operations handler:
+
+- **HasResources:**  
+  Requires a `resources` method to set or access shared emulator resources.
+
+- **HasCallOperation:**  
+  Requires a `call` member with a `perform()` method for subroutine calls.
+
+- **HasDisplayOperation:**  
+  Requires a `display` member with methods like `clear_screen()` and `draw()` for graphics.
+
+- **HasFlowOperation:**  
+  Requires a `flow` member with methods for control flow: `function_return()`, `jump()`, `jump_with_offset()`, `function_call_at()`.
+
+- **HasConditionalOperation:**  
+  Requires a `conditional` member with methods for conditional skips based on register values.
+
+- **HasAssignmentOperation:**  
+  Requires an `assign` member for register assignments and random value generation.
+
+- **HasMathOperation:**  
+  Requires a `math` member for arithmetic operations (add, subtract, etc.).
+
+- **HasBitwiseOperation:**  
+  Requires a `bitwise` member for bitwise logic and shifts.
+
+- **HasKeyOperation:**  
+  Requires a `keyop` member for input handling (key checks and waits).
+
+- **HasMemOperation:**  
+  Requires a `mem` member for memory-related instructions (addressing, register dumps/loads).
+
+- **HasTimerOperation:**  
+  Requires a `timer` member for delay and sound timer operations.
+
+- **HasBcdOperation:**  
+  Requires a `bcd` member for BCD (binary-coded decimal) conversion.
+
+- **InvalidOperation:**  
+  Requires an `invalid` member with a `handle()` method for unrecognized or unsupported instructions.
+
+=== Why Use a Concept?
+
+- **Type Safety:** Ensures at compile time that the operations handler provides all required methods.
+- **Flexibility:** Allows developers to define their own variants of Chip8 operations (for debugging, testing, or extending the emulator) as long as they satisfy the concept.
+- **Extensibility:** Makes it easy to swap out or extend the operations implementation for different use cases (e.g., headless testing, custom hardware, or enhanced Chip8 variants).
+
+=== How to Define a Custom Operations Handler
+
+To use your own operations handler, define a struct or class that implements all the methods expected by the Chip8 instruction set (as required by `SupportsChip8Ops`). For example, you might need to provide methods for register access, timers, graphics, and input.
+
+==== Example: Minimal Test Operations Handler
+
+Suppose you want to create a mock operations handler for unit testing:
+
+[source,cpp]
+----
+struct test_operations_t {
+    // Example: Register operations
+    void set_register(uint8_t reg, uint8_t value) { /* ... */ }
+    uint8_t get_register(uint8_t reg) const { /* ... */ return 0; }
+
+    // Example: Timer operations
+    struct {
+        void set_delay(uint8_t) { /* ... */ }
+        uint8_t get_delay() const { return 0; }
+    } timer;
+
+    // Example: Graphics operations
+    struct {
+        void clear() { /* ... */ }
+        void draw_sprite(uint8_t x, uint8_t y, uint8_t n) { /* ... */ }
+    } gfx;
+
+    // Example: Input operations
+    struct {
+        bool is_key_pressed(uint8_t key) const { return false; }
+        void wait_for_keypress(uint8_t& key) { /* ... */ }
+    } keyop;
+
+    // ...implement any other required methods...
+};
+----
+
+As long as your struct provides all the methods and nested structures expected by the instruction set and referenced by the concept, you can use it with the emulator core:
+
+[source,cpp]
+----
+test_operations_t ops;
+chip8::core_t<test_operations_t> core(ops);
+----
+
+=== Summary
+
+The `SupportsChip8Ops` concept acts as a contract, ensuring that your operations handler is fully compatible with all aspects of the Chip8 instruction set. By organizing the requirements into smaller concepts, it promotes modularity and makes it easier to implement, test, or extend individual groups of operations without affecting the entire emulator core.
+
+- The `SupportsChip8Ops` concept defines the required interface for Chip8 operations.
+- Developers can implement their own operations handler for custom use cases, testing, or extensions.
+- As long as the handler satisfies the concept, it can be used seamlessly with the emulator.
+
+link:instruction.html[Instruction API Design and Extensibility]
+link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
