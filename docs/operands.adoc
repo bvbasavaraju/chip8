@@ -32,24 +32,30 @@ The operands API is designed to provide a type-safe, extensible, and convenient 
 === Extending for New Operand Types
 
 To support a new operand type:
+
 1. **Define a new type alias:**  
    For example, for a 3-bit operand, add:
    ```
    using M_t = operand_t<uint8_t>;
    ```
+
 2. **Add a member to `operands_t`:**  
    Add a new `std::optional<M_t> _M;` and corresponding getter/setter methods:
-   ```
-   auto M(std::uint16_t inst) -> void {
-       _M = {(inst & 0x00E0) >> 5}; // Example bitmask and shift
-   }
-   [[nodiscard]] auto M() const -> std::uint8_t {
-       return _M.value_or(M_t{})();
-   }
-   [[nodiscard]] auto M_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
-       return _M.has_value() && _M.value().is_valid(acceptable_values);
-   }
-   ```
+[source,cpp]
+----
+auto M(std::uint16_t inst) -> void {
+    _M = {(inst & 0x00E0) >> 5}; // Example bitmask and shift
+}
+
+[[nodiscard]] auto M() const -> std::uint8_t {
+    return _M.value_or(M_t{})();
+}
+
+[[nodiscard]] auto M_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
+    return _M.has_value() && _M.value().is_valid(acceptable_values);
+}
+----
+
 3. **Use in Opcode Handlers:**  
    In your opcode handler, call `operands.M(inst)` to extract the new operand.
 
@@ -60,5 +66,6 @@ To support a new operand type:
 - To add a new operand type, define a new alias and extend `operands_t` with extraction and validation logic.
 - This design keeps operand handling clean, extensible, and easy to maintain.
 
-link:opcodes.html[Chip8 Opcodes: Overview and API Design]
-link:operations.html[The `SupportsChip8Ops` Concept]
+- link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+- link:operations.html[The `SupportsChip8Ops` Concept]
+- link:core.html[Core Emulator API Reference]

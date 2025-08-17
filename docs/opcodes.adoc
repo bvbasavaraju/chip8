@@ -88,5 +88,6 @@ template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
 - Adding new instructions requires only a new specialization and, if needed, operand extraction logic.
 - The design allows for easy extension and experimentation with custom or future instructions.
 
-link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
-link:operations.html[The `SupportsChip8Ops` Concept]
+- link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+- link:operations.html[The `SupportsChip8Ops` Concept]
+- link:core.html[Core Emulator API Reference]

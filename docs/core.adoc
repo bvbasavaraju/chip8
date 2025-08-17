@@ -56,7 +56,8 @@ core.execute(inst);
 
 This structure makes it easy to integrate the emulator into larger applications or to create custom Chip8 environments.
 
-link:instruction.html[Instruction API Design and Extensibility]
-link:opcodes.html[Chip8 Opcodes: Overview and API Design]
-link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
-link:operations.html[The `SupportsChip8Ops` Concept]
+- link:instruction.html[Instruction API Design and Extensibility]
+- link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+- link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+- link:operations.html[The `SupportsChip8Ops` Concept]
+- link:core.html[Core Emulator API Reference]
