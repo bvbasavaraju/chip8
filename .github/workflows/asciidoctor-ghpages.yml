@@ -25,6 +25,10 @@ jobs:
         asciidoctor docs/index.adoc -o ./generated-html/index.html
         asciidoctor docs/chip8_emu.adoc -o ./generated-html/chip8_emu.html
         asciidoctor docs/core.adoc -o ./generated-html/core.html
+        asciidoctor docs/instruction.adoc -o ./generated-html/instruction.html
+        asciidoctor docs/opcodes.adoc -o ./generated-html/opcodes.html
+        asciidoctor docs/operands.adoc -o ./generated-html/operands.html
+        asciidoctor docs/operations.adoc -o ./generated-html/operations.html
         ls -la ./generated-html
     - name: Upload artifacts
       uses: actions/upload-pages-artifact@v3

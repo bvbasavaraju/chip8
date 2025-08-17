@@ -1,0 +1,64 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
+== Chip8 Instruction Operands: Design and Extensibility
+
+A Chip8 instruction is a 16-bit value, typically structured as an opcode (the upper 4 bits) and one or more operands (the remaining bits). Operands specify registers, immediate values, or addresses that the instruction operates on. Different instructions use different operand types and bit layouts.
+
+=== Operand Types in Chip8
+
+Common operand types in Chip8 include:
+- **X:** 4-bit register index (bits 8–11)
+- **Y:** 4-bit register index (bits 4–7)
+- **N:** 4-bit immediate value (bits 0–3)
+- **NN:** 8-bit immediate value (bits 0–7)
+- **NNN:** 12-bit address (bits 0–11)
+
+These operand types are used in various combinations to form the full instruction set.
+
+== Operands API Design
+
+The operands API is designed to provide a type-safe, extensible, and convenient way to extract and validate operands from a 16-bit instruction. Each operand type is represented by a template specialization of `operand_t<T>`, and all operands for an instruction are grouped in the `operands_t` struct.
+
+=== Key Components
+
+- **operand_t<T>:**  
+  A template struct that wraps an operand value of type `T` (e.g., `uint8_t`, `uint16_t`). It provides methods for assignment, retrieval, and validation.
+
+- **operands_t:**  
+  A struct that holds all possible operand types (`X_t`, `Y_t`, `N_t`, `NN_t`, `NNN_t`) as optionals. It provides methods to extract each operand from a 16-bit instruction and to validate them.
+
+=== Extending for New Operand Types
+
+To support a new operand type:
+1. **Define a new type alias:**  
+   For example, for a 3-bit operand, add:
+   ```
+   using M_t = operand_t<uint8_t>;
+   ```
+2. **Add a member to `operands_t`:**  
+   Add a new `std::optional<M_t> _M;` and corresponding getter/setter methods:
+   ```
+   auto M(std::uint16_t inst) -> void {
+       _M = {(inst & 0x00E0) >> 5}; // Example bitmask and shift
+   }
+   [[nodiscard]] auto M() const -> std::uint8_t {
+       return _M.value_or(M_t{})();
+   }
+   [[nodiscard]] auto M_is_valid(u8_acceptable_t acceptable_values = {}) const -> bool {
+       return _M.has_value() && _M.value().is_valid(acceptable_values);
+   }
+   ```
+3. **Use in Opcode Handlers:**  
+   In your opcode handler, call `operands.M(inst)` to extract the new operand.
+
+=== Summary
+
+- Chip8 instructions are composed of various operand types, each mapped to a specific bit range.
+- The operands API provides a modular and type-safe way to extract, store, and validate operands.
+- To add a new operand type, define a new alias and extend `operands_t` with extraction and validation logic.
+- This design keeps operand handling clean, extensible, and easy to maintain.
+
+link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+link:operations.html[The `SupportsChip8Ops` Concept]

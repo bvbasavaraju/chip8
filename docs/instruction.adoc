@@ -1,0 +1,67 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
+== Instruction API Design and Extensibility
+
+The `instruction_t` struct encapsulates the logic for decoding and executing Chip8 instructions. It is designed for modularity and extensibility, allowing developers to easily add support for new opcodes.
+
+=== Structure and Usage
+
+- **Decoding:**  
+  The static method `instruction_t::decode(std::uint16_t inst)` creates an `instruction_t` object from a 16-bit instruction word. It extracts the opcode (the upper 4 bits) and the operands (the lower 12 bits).
+
+- **Execution:**  
+  The `execute(Operations_t &ops)` method dispatches execution based on the opcode. It uses a switch statement to select the correct opcode handler, then:
+  - Decodes operands using `opcode_t<op_val>::decode_operands`.
+  - Validates and executes the instruction with `opcode_t<op_val>::validate_operands_and_execute`.
+
+=== Extending for New Opcodes
+
+To add support for a new opcode:
+
+1. **Define the Opcode Handler:**
+   - Create or extend a specialization of `opcode_t<NEW_OPCODE>` in `opcodes.hpp`.
+   - Implement the required static methods:
+     - `decode_operands(uint16_t operands_, operands_t& operands)`
+     - `validate_operands_and_execute(const operands_t& operands, Operations_t& ops)`
+
+2. **Update the Switch Statement (if needed):**
+   - If your opcode uses a new upper nibble (not already handled in the switch), add a new `case` in the `switch (opcode)` statement in `instruction_t::execute`.
+
+3. **Operand Handling:**
+   - Use or extend `operands_t` and related types in `operands.hpp` to define how operands are extracted and validated for your new opcode.
+
+=== Example: Adding a New Opcode
+
+Suppose you want to add opcode `0x9`:
+
+. In `opcodes.hpp`:
+[source,cpp]
+----
+template <>
+struct opcode_t<0x9> {
+    static bool decode_operands(uint16_t operands_, operands_t& operands) {
+        // Extract operands from operands_
+        return true;
+    }
+    template <typename Operations_t>
+    static void validate_operands_and_execute(const operands_t& operands, Operations_t& ops) {
+        // Implement the instruction logic
+    }
+};
+----
+
+. In `instruction.hpp`, ensure `case 0x9:` is present in the switch (already handled in code).
+
+=== Summary
+
+- The instruction API is modular: each opcode is handled by a dedicated template specialization.
+- Adding new instructions requires only extending `opcode_t` and, if needed, operand types.
+- No changes to the core emulation loop are needed—just add your new handler and it will be dispatched automatically.
+
+This design keeps the codebase clean, maintainable, and easy to extend for future Chip8 variants or custom instructions. It allows developers to focus on implementing the logic for their specific opcodes without worrying about the underlying emulation mechanics.
+
+link:opcodes.html[Chip8 Opcodes: Overview and API Design]
+link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+link:operations.html[The `SupportsChip8Ops` Concept]

@@ -1,0 +1,92 @@
+:source-language: c++
+:toc: left
+:toclevels: 4
+
+== Chip8 Opcodes: Overview and API Design
+
+A Chip8 instruction is a 16-bit value, where the upper 4 bits (the "opcode") determine the instruction type, and the remaining bits encode operands. Each opcode corresponds to a family of instructions, often with subtypes determined by additional bits.
+
+=== Common Chip8 Opcodes
+
+[cols="1,2,3,4",options="header"]
+|===
+| Opcode | Mnemonic/Pattern | Usage | Description
+
+| 0x0    | 0NNN, 00E0, 00EE | SYS addr, CLS, RET | System call, clear screen, return from subroutine
+| 0x1    | 1NNN             | JP addr           | Jump to address
+| 0x2    | 2NNN             | CALL addr         | Call subroutine at address
+| 0x3    | 3XNN             | SE Vx, byte       | Skip if Vx == NN
+| 0x4    | 4XNN             | SNE Vx, byte      | Skip if Vx != NN
+| 0x5    | 5XY0             | SE Vx, Vy         | Skip if Vx == Vy
+| 0x6    | 6XNN             | LD Vx, byte       | Set Vx = NN
+| 0x7    | 7XNN             | ADD Vx, byte      | Set Vx = Vx + NN
+| 0x8    | 8XYN             | Arithmetic/Logic  | Multiple ALU operations (see below)
+| 0x9    | 9XY0             | SNE Vx, Vy        | Skip if Vx != Vy
+| 0xA    | ANNN             | LD I, addr        | Set I = NNN
+| 0xB    | BNNN             | JP V0, addr       | Jump to address + V0
+| 0xC    | CXNN             | RND Vx, byte      | Set Vx = rand() & NN
+| 0xD    | DXYN             | DRW Vx, Vy, N     | Draw sprite
+| 0xE    | EX9E, EXA1       | SKP/SKNP Vx       | Skip if key (Vx) pressed/not pressed
+| 0xF    | FX07, FX0A, ...  | Miscellaneous     | Timers, memory, BCD, key, etc.
+|===
+
+*Note:* The 0x8 family (8XYN) includes operations like LD, OR, AND, XOR, ADD, SUB, SHR, SUBN, SHL, determined by the lowest nibble (N).
+
+== Opcode API Design
+
+The opcode API is built around the `opcode_t<op>` template struct, where each opcode (0x0 to 0xF) is a specialization. Each specialization provides:
+
+- `decode_operands(uint16_t inst, operands_t& operands)`: Extracts operands from the instruction.
+- `validate_operands(const operands_t&)`: Checks if operands are valid for this opcode.
+- `execute(const operands_t&, Operations_t&)`: Executes the instruction logic using the provided operations handler.
+
+A base class (`opcode_base`) provides a helper to validate operands and dispatch execution.
+
+== Extending for New Opcodes
+
+To add support for a new opcode or instruction variant:
+
+1. **Specialize `opcode_t<NEW_OPCODE>`:**
+   - Create a new template specialization for the opcode value.
+   - Implement the required static methods: `decode_operands`, `validate_operands`, and `execute`.
+
+2. **Operand Extraction:**
+   - Use or extend `operands_t` to extract any new operand types needed.
+
+3. **Instruction Dispatch:**
+   - The core instruction execution logic will automatically dispatch to your new handler if the opcode matches.
+
+=== Example: Adding a New Opcode
+
+Suppose you want to add a new opcode `0xE` variant:
+
+[source,cpp]
+----
+template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
+    static auto decode_operands(uint16_t inst, operands_t& operands) -> bool {
+        operands.X(inst);
+        operands.NN(inst);
+        return true;
+    }
+    static auto validate_operands(const operands_t& operands) -> bool {
+        return operands.X_is_valid() && operands.NN_is_valid({{0x9E, 0xA1}});
+    }
+    template <typename Operations_t>
+    static void execute(const operands_t& operands, Operations_t& ops) {
+        switch (operands.NN()) {
+            case 0x9E: ops.keyop.skip_if_key_eq_to_reg(operands.X()); break;
+            case 0xA1: ops.keyop.skip_if_key_not_eq_to_reg(operands.X()); break;
+            default: ops.invalid.handle(); break;
+        }
+    }
+};
+----
+
+== Summary
+
+- Each opcode is handled by a dedicated template specialization, keeping logic modular and maintainable.
+- Adding new instructions requires only a new specialization and, if needed, operand extraction logic.
+- The design allows for easy extension and experimentation with custom or future instructions.
+
+link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+link:operations.html[The `SupportsChip8Ops` Concept]
