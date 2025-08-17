@@ -111,3 +111,4 @@ The `SupportsChip8Ops` concept acts as a contract, ensuring that your operations
 - link:instruction.html[Instruction API Design and Extensibility]
 - link:opcodes.html[Chip8 Opcodes: Overview and API Design]
 - link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
+- link:core.html[Core Emulator API Reference]

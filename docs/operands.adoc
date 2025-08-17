@@ -68,3 +68,4 @@ auto M(std::uint16_t inst) -> void {
 
 - link:opcodes.html[Chip8 Opcodes: Overview and API Design]
 - link:operations.html[The `SupportsChip8Ops` Concept]
+- link:core.html[Core Emulator API Reference]

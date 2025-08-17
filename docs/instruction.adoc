@@ -65,3 +65,4 @@ This design keeps the codebase clean, maintainable, and easy to extend for futur
 - link:opcodes.html[Chip8 Opcodes: Overview and API Design]
 - link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
 - link:operations.html[The `SupportsChip8Ops` Concept]
+- link:chip8_emu.html[Chip8 Emulator Overview and Design Principles]

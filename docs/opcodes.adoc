@@ -90,3 +90,4 @@ template <> struct opcode_t<0xE> : detail::opcode_base<opcode_t<0xE>> {
 
 - link:operands.html[Chip8 Instruction Operands: Design and Extensibility]
 - link:operations.html[The `SupportsChip8Ops` Concept]
+- link:core.html[Core Emulator API Reference]
