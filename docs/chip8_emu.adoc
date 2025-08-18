@@ -7,7 +7,7 @@ This project is a Chip8 emulator implemented in C++. It aims to faithfully emula
 
 Key features:
 - Written in modern C++
-- SDL3-based window and rendering support (SDL3 integration is still in progress)
+- SDL3-based window and rendering support (Note: integrating with SDL3 is completed, it is open to create examples with actual Chip8 games)
 - Loads and executes Chip8 ROMs
 - Modular code structure for easy extension
 
