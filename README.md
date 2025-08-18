@@ -3,8 +3,8 @@ This repository implements the chip8 emulator
 
 For more details on the implementation can be found in [this github page](https://bvbasavaraju.github.io/chip8/)
 
-## 🤝 Contributing to Our Chip-8 Project
-We're thrilled you're interested in contributing to our Chip-8 project! Whether you're an experienced emulator developer or just getting started with low-level systems, your help is invaluable in making this project a fantastic resource for learning and exploring the world of Chip-8. 
+## 🤝 Contributing to Chip-8 Project
+Whether you're an experienced emulator developer or just getting started with low-level systems, your help is invaluable for learning and exploring the world of Chip-8. 
 
 ### Ways to contribute
 1. **Chip-8 Game Examples**: We welcome contributions of new or interesting Chip-8 game examples. If you've found a classic gem or created your own, please share it! When contributing game examples:
